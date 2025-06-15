@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Language } from '@/types/chat';
-import { Search, ExternalLink, Loader2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Search, ExternalLink, Loader2, Settings } from 'lucide-react';
 import { useRepositoryAccess } from '@/hooks/useRepositoryAccess';
 import ConnectionTypeSelector from './ConnectionTypeSelector';
 import RepositoryList from './RepositoryList';
@@ -30,6 +30,7 @@ const QuickRepositoryAccess: React.FC<QuickRepositoryAccessProps> = ({
     showConnectionSelection,
     handleSelectRepository,
     handleConnectionTypeSelect,
+    handleShowConnectionSelection,
     handleBackToConnectionSelection,
     fetchRepositories
   } = useRepositoryAccess();
@@ -50,49 +51,33 @@ const QuickRepositoryAccess: React.FC<QuickRepositoryAccessProps> = ({
       <div className="p-4 space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 pb-3">
+          <h3 className="text-lg font-semibold text-gray-900">
+            {language === 'ar' ? 'اختيار المستودع' : 'Repository Selection'}
+          </h3>
           <div className="flex items-center space-x-2">
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleBackToConnectionSelection}
-              className="p-2"
+              onClick={handleShowConnectionSelection}
+              className="text-gray-600 hover:text-gray-700"
             >
-              {language === 'ar' ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+              <Settings className="w-4 h-4" />
             </Button>
-            <h3 className="text-lg font-semibold text-gray-900">
-              {language === 'ar' ? 'اختيار مستودع' : 'Select Repository'}
-            </h3>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={fetchRepositories} 
+              disabled={isLoading}
+              className="text-blue-600 hover:text-blue-700"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <ExternalLink className="w-4 h-4" />
+              )}
+            </Button>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={fetchRepositories} 
-            disabled={isLoading}
-            className="text-blue-600 hover:text-blue-700"
-          >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <ExternalLink className="w-4 h-4" />
-            )}
-          </Button>
         </div>
-
-        {/* Connection Type Display */}
-        {selectedConnectionType && (
-          <div className="flex items-center space-x-2 text-sm text-gray-600 bg-gray-50 p-2 rounded-md">
-            <span className="font-medium">
-              {language === 'ar' ? 'نوع الاتصال:' : 'Connection Type:'}
-            </span>
-            <span className="text-blue-600">
-              {selectedConnectionType === 'github' && 'GitHub'}
-              {selectedConnectionType === 'bitbucket' && 'Bitbucket'}
-              {selectedConnectionType === 'devops' && 'Azure DevOps'}
-              {selectedConnectionType === 'devops-user' && (language === 'ar' ? 'مستخدم DevOps' : 'DevOps User')}
-              {selectedConnectionType === 'security' && (language === 'ar' ? 'مستخدم الأمان' : 'Security User')}
-            </span>
-          </div>
-        )}
 
         {/* Selected Repository Display */}
         {selectedRepository && (

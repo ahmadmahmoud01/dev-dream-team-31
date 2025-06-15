@@ -11,8 +11,8 @@ export const useRepositoryAccess = () => {
   const [repositories, setRepositories] = useState<{ source: string; projects: Project[] }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRepository, setSelectedRepository] = useState<{ source: string; project: Project } | null>(null);
-  const [selectedConnectionType, setSelectedConnectionType] = useState<ConnectionType | null>(null);
-  const [showConnectionSelection, setShowConnectionSelection] = useState(true);
+  const [selectedConnectionType, setSelectedConnectionType] = useState<ConnectionType>('devops');
+  const [showConnectionSelection, setShowConnectionSelection] = useState(false);
   const { settings } = useIntegrations();
 
   const fetchRepositories = async () => {
@@ -73,9 +73,12 @@ export const useRepositoryAccess = () => {
     setRepositories([]);
   };
 
+  const handleShowConnectionSelection = () => {
+    setShowConnectionSelection(true);
+  };
+
   const handleBackToConnectionSelection = () => {
     setShowConnectionSelection(true);
-    setSelectedConnectionType(null);
     setSelectedRepository(null);
     setRepositories([]);
   };
@@ -98,6 +101,7 @@ export const useRepositoryAccess = () => {
     showConnectionSelection,
     handleSelectRepository,
     handleConnectionTypeSelect,
+    handleShowConnectionSelection,
     handleBackToConnectionSelection,
     fetchRepositories
   };
