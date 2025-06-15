@@ -20,10 +20,11 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({ config, language }) =
   const { settings, saveIntegrationSettings, testConnection, isLoading } = useIntegrations();
   const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [tempSettings, setTempSettings] = useState(settings[config.id] || {});
+  
+  const currentSettings = settings[config.id] || { enabled: false };
+  const [tempSettings, setTempSettings] = useState(currentSettings);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  const currentSettings = settings[config.id] || {};
   const isEnabled = currentSettings.enabled || false;
 
   const handleSave = () => {
