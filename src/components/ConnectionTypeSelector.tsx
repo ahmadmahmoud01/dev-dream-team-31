@@ -2,9 +2,9 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Language } from '@/types/chat';
-import { Github, GitBranch, Settings, ExternalLink, Shield, Server } from 'lucide-react';
+import { Github, GitBranch, Settings, ExternalLink, Shield, Server, Plus } from 'lucide-react';
 
-type ConnectionType = 'github' | 'bitbucket' | 'devops' | 'devops-user' | 'security';
+type ConnectionType = 'github' | 'bitbucket' | 'devops' | 'devops-user' | 'security' | 'custom';
 
 interface ConnectionTypeSelectorProps {
   language: Language;
@@ -50,6 +50,13 @@ const ConnectionTypeSelector: React.FC<ConnectionTypeSelectorProps> = ({
       icon: <Shield className="w-5 h-5" />,
       description: language === 'ar' ? 'ربط كمستخدم أمان' : 'Connect as Security User',
       color: 'bg-red-600'
+    },
+    {
+      id: 'custom' as ConnectionType,
+      name: language === 'ar' ? 'مزود مخصص' : 'Custom Provider',
+      icon: <Plus className="w-5 h-5" />,
+      description: language === 'ar' ? 'أضف أي مزود مستودع آخر' : 'Add any other repository provider',
+      color: 'bg-green-600'
     }
   ];
 

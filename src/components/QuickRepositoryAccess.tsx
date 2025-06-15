@@ -6,6 +6,7 @@ import { Language } from '@/types/chat';
 import { Search, ExternalLink, Loader2, Settings } from 'lucide-react';
 import { useRepositoryAccess } from '@/hooks/useRepositoryAccess';
 import ConnectionTypeSelector from './ConnectionTypeSelector';
+import CustomProviderConfig from './CustomProviderConfig';
 import RepositoryList from './RepositoryList';
 import SelectedRepositoryDisplay from './SelectedRepositoryDisplay';
 
@@ -28,12 +29,28 @@ const QuickRepositoryAccess: React.FC<QuickRepositoryAccessProps> = ({
     selectedRepository,
     selectedConnectionType,
     showConnectionSelection,
+    showCustomConfig,
+    customProviders,
     handleSelectRepository,
     handleConnectionTypeSelect,
     handleShowConnectionSelection,
     handleBackToConnectionSelection,
+    handleBackFromCustomConfig,
+    saveCustomProvider,
     fetchRepositories
   } = useRepositoryAccess();
+
+  if (showCustomConfig) {
+    return (
+      <div className="w-full bg-white rounded-lg shadow-lg border border-gray-200">
+        <CustomProviderConfig
+          language={language}
+          onBack={handleBackFromCustomConfig}
+          onSave={saveCustomProvider}
+        />
+      </div>
+    );
+  }
 
   if (showConnectionSelection) {
     return (
@@ -78,6 +95,21 @@ const QuickRepositoryAccess: React.FC<QuickRepositoryAccessProps> = ({
             </Button>
           </div>
         </div>
+
+        {/* Current Connection Type Display */}
+        {selectedConnectionType && (
+          <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+            <span className="text-sm text-gray-600">
+              {language === 'ar' ? 'متصل بـ:' : 'Connected to:'} 
+              <span className="font-medium ml-1">
+                {selectedConnectionType === 'custom' 
+                  ? (customProviders[0]?.name || (language === 'ar' ? 'مزود مخصص' : 'Custom Provider'))
+                  : selectedConnectionType
+                }
+              </span>
+            </span>
+          </div>
+        )}
 
         {/* Selected Repository Display */}
         {selectedRepository && (
