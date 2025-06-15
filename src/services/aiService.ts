@@ -9,7 +9,7 @@ export class AIService {
     this.settings = settings;
   }
 
-  async generateResponse(message: string, role: string, language: 'ar' | 'en'): Promise<string> {
+  async generateResponse(message: string, role: string, language: 'ar' | 'en', integrationContext?: string): Promise<string> {
     const provider = getProviderById(this.settings.selectedProvider);
     const model = getModelById(this.settings.selectedModel);
 
@@ -19,7 +19,7 @@ export class AIService {
 
     // Handle local simulation
     if (provider.id === 'local') {
-      return this.simulateResponse(message, role, language);
+      return this.simulateResponse(message, role, language, integrationContext);
     }
 
     // Handle real API calls
@@ -29,9 +29,9 @@ export class AIService {
 
     try {
       if (provider.id === 'openai') {
-        return await this.callOpenAI(message, role, language);
+        return await this.callOpenAI(message, role, language, integrationContext);
       } else if (provider.id === 'anthropic') {
-        return await this.callAnthropic(message, role, language);
+        return await this.callAnthropic(message, role, language, integrationContext);
       }
     } catch (error) {
       console.error('AI API Error:', error);
@@ -41,8 +41,8 @@ export class AIService {
     throw new Error('Unsupported provider');
   }
 
-  private async callOpenAI(message: string, role: string, language: 'ar' | 'en'): Promise<string> {
-    const systemPrompt = this.getSystemPrompt(role, language);
+  private async callOpenAI(message: string, role: string, language: 'ar' | 'en', integrationContext?: string): Promise<string> {
+    const systemPrompt = this.getSystemPrompt(role, language, integrationContext);
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -69,8 +69,8 @@ export class AIService {
     return data.choices[0]?.message?.content || 'لم أتمكن من توليد إجابة';
   }
 
-  private async callAnthropic(message: string, role: string, language: 'ar' | 'en'): Promise<string> {
-    const systemPrompt = this.getSystemPrompt(role, language);
+  private async callAnthropic(message: string, role: string, language: 'ar' | 'en', integrationContext?: string): Promise<string> {
+    const systemPrompt = this.getSystemPrompt(role, language, integrationContext);
     
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -98,18 +98,26 @@ export class AIService {
     return data.content[0]?.text || 'لم أتمكن من توليد إجابة';
   }
 
-  private simulateResponse(message: string, role: string, language: 'ar' | 'en'): Promise<string> {
+  private simulateResponse(message: string, role: string, language: 'ar' | 'en', integrationContext?: string): Promise<string> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const response = language === 'ar' 
+        let response = language === 'ar' 
           ? `هذه استجابة محاكاة من ${role} للرسالة: ${message.substring(0, 50)}...`
           : `This is a simulated response from ${role} for the message: ${message.substring(0, 50)}...`;
+        
+        if (integrationContext) {
+          const contextNote = language === 'ar'
+            ? '\n\nتم تضمين بيانات التكاملات في الاستجابة.'
+            : '\n\nIntegration data has been included in the response.';
+          response += contextNote;
+        }
+        
         resolve(response);
       }, 1000 + Math.random() * 2000);
     });
   }
 
-  private getSystemPrompt(role: string, language: 'ar' | 'en'): string {
+  private getSystemPrompt(role: string, language: 'ar' | 'en', integrationContext?: string): string {
     const rolePrompts = {
       'ar': {
         'tester': 'أنت مختبر برمجيات خبير. ساعد المستخدم في اختبار البرمجيات وضمان الجودة.',
@@ -135,7 +143,17 @@ export class AIService {
       }
     };
 
-    return rolePrompts[language][role as keyof typeof rolePrompts[typeof language]] || 
+    let systemPrompt = rolePrompts[language][role as keyof typeof rolePrompts[typeof language]] || 
            (language === 'ar' ? 'أنت مساعد ذكي مفيد.' : 'You are a helpful AI assistant.');
+    
+    if (integrationContext) {
+      const contextInstruction = language === 'ar'
+        ? '\n\nلديك إمكانية الوصول إلى بيانات التكاملات التالية. استخدمها للإجابة على الأسئلة المتعلقة بالمشاريع والمهام:'
+        : '\n\nYou have access to the following integration data. Use it to answer questions about projects and tasks:';
+      
+      systemPrompt += contextInstruction + integrationContext;
+    }
+
+    return systemPrompt;
   }
 }

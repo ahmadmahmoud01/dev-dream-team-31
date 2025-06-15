@@ -1,10 +1,10 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Message, AIRole, Language } from '@/types/chat';
 import { getRoleConfig } from '@/config/roleConfig';
 import { generateRoleBasedResponse } from '@/utils/aiResponseGenerator';
 import { useConversationManager } from '@/hooks/useConversationManager';
 import { useAISettings } from '@/hooks/useAISettings';
+import { useIntegrations } from '@/hooks/useIntegrations';
 import ChatSidebar from './ChatSidebar';
 import ChatHeader from './ChatHeader';
 import ChatInput from './ChatInput';
@@ -23,6 +23,7 @@ const ChatInterface = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const aiSettings = useAISettings();
+  const integrations = useIntegrations();
 
   const {
     conversations,
@@ -90,7 +91,13 @@ const ChatInterface = () => {
     setIsLoading(true);
 
     try {
-      const aiResponse = await generateRoleBasedResponse(inputMessage, selectedRole, language, aiSettings);
+      const aiResponse = await generateRoleBasedResponse(
+        inputMessage, 
+        selectedRole, 
+        language, 
+        aiSettings,
+        integrations.settings
+      );
       
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
