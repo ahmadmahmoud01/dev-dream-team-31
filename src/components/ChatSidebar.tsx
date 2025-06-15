@@ -2,7 +2,6 @@
 import React from 'react';
 import { FileText, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { ConversationMemory, AIRole, Language } from '@/types/chat';
 import { getRoleConfig } from '@/config/roleConfig';
@@ -72,28 +71,37 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
           </Button>
         </div>
 
-        {/* Role Selection */}
-        <Select value={selectedRole} onValueChange={(value: any) => setSelectedRole(value)}>
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
+        {/* Role Selection Grid */}
+        <div className="mb-4">
+          <h3 className="text-sm font-medium text-gray-700 mb-3">اختر الموظف</h3>
+          <div className="grid grid-cols-3 gap-2">
             {Object.entries(roleConfig).map(([key, config]) => {
               const Icon = config.icon;
+              const isSelected = selectedRole === key;
               return (
-                <SelectItem key={key} value={key}>
-                  <div className="flex items-center space-x-2">
-                    <Icon className="w-4 h-4" />
-                    <span>{config.name}</span>
+                <Card
+                  key={key}
+                  className={`p-3 cursor-pointer transition-all hover:shadow-md ${
+                    isSelected 
+                      ? `ring-2 ring-blue-500 ${config.color} text-white` 
+                      : 'hover:bg-gray-50'
+                  }`}
+                  onClick={() => setSelectedRole(key as AIRole)}
+                >
+                  <div className="flex flex-col items-center space-y-1">
+                    <Icon className="w-5 h-5" />
+                    <span className="text-xs font-medium text-center leading-tight">
+                      {config.name}
+                    </span>
                   </div>
-                </SelectItem>
+                </Card>
               );
             })}
-          </SelectContent>
-        </Select>
+          </div>
+        </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2 mt-4">
+        <div className="flex gap-2">
           <Button size="sm" onClick={onCreateNewConversation} className="flex-1">
             <FileText className="w-4 h-4 mr-1" />
             {t.newChat}
