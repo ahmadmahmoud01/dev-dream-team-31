@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Upload, Download, Code, TestTube, FileText, User, Lightbulb, Trash2, Save } from 'lucide-react';
+import { Send, Upload, Download, Code, TestTube, FileText, User, Lightbulb, Trash2, Save, BarChart3, Database, Smartphone, Server, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,7 +13,7 @@ interface Message {
   content: string;
   sender: 'user' | 'ai';
   timestamp: Date;
-  aiRole?: 'tester' | 'frontend';
+  aiRole?: 'tester' | 'frontend' | 'business-analyst' | 'backend' | 'mobile' | 'devops' | 'fullstack';
 }
 
 interface ConversationMemory {
@@ -21,13 +21,13 @@ interface ConversationMemory {
   title: string;
   messages: Message[];
   lastUpdated: Date;
-  role: 'tester' | 'frontend';
+  role: 'tester' | 'frontend' | 'business-analyst' | 'backend' | 'mobile' | 'devops' | 'fullstack';
 }
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'tester' | 'frontend'>('tester');
+  const [selectedRole, setSelectedRole] = useState<'tester' | 'frontend' | 'business-analyst' | 'backend' | 'mobile' | 'devops' | 'fullstack'>('tester');
   const [isLoading, setIsLoading] = useState(false);
   const [conversations, setConversations] = useState<ConversationMemory[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
@@ -72,8 +72,18 @@ const ChatInterface = () => {
       subtitle: 'مساعد الذكي لتطوير البرمجيات',
       tester: 'مختبر البرمجيات',
       frontend: 'مطور واجهات المستخدم',
+      'business-analyst': 'محلل الأعمال',
+      backend: 'مطور الخادم',
+      mobile: 'مطور التطبيقات المحمولة',
+      devops: 'مهندس DevOps',
+      fullstack: 'مطور الويب المتكامل',
       testerDesc: 'خبير في تصميم حالات الاختبار وتحليل الأخطاء وعمليات ضمان الجودة',
       frontendDesc: 'متخصص في تطوير واجهات المستخدم وتقنيات الفرونت إند الحديثة',
+      'business-analystDesc': 'خبير في تحليل متطلبات العمل وتصميم العمليات والحلول التقنية',
+      backendDesc: 'متخصص في تطوير خوادم التطبيقات وقواعد البيانات والخدمات الخلفية',
+      mobileDesc: 'خبير في تطوير تطبيقات الهواتف الذكية والأجهزة المحمولة',
+      devopsDesc: 'متخصص في نشر التطبيقات وإدارة البنية التحتية والأتمتة',
+      fullstackDesc: 'مطور شامل متخصص في الفرونت إند والباك إند وقواعد البيانات',
       newChat: 'محادثة جديدة',
       saveChat: 'حفظ المحادثة',
       clearHistory: 'مسح السجل',
@@ -92,8 +102,18 @@ const ChatInterface = () => {
       subtitle: 'AI Software Development Assistant',
       tester: 'Software Tester',
       frontend: 'Frontend Developer',
+      'business-analyst': 'Business Analyst',
+      backend: 'Backend Developer',
+      mobile: 'Mobile Developer',
+      devops: 'DevOps Engineer',
+      fullstack: 'Full Stack Developer',
       testerDesc: 'Expert in test case design, bug analysis, and QA processes',
       frontendDesc: 'Specialist in UI/UX development and modern frontend technologies',
+      'business-analystDesc': 'Expert in business requirements analysis and process design',
+      backendDesc: 'Specialist in server-side development and database management',
+      mobileDesc: 'Expert in mobile app development for iOS and Android platforms',
+      devopsDesc: 'Specialist in deployment, infrastructure management, and automation',
+      fullstackDesc: 'Comprehensive developer skilled in frontend, backend, and databases',
       newChat: 'New Chat',
       saveChat: 'Save Chat',
       clearHistory: 'Clear History',
@@ -144,6 +164,91 @@ const ChatInterface = () => {
         'What are the best CSS practices for responsive design?',
         'How do I optimize frontend application performance?',
         'Explain State Management concepts in React'
+      ]
+    },
+    'business-analyst': {
+      name: t['business-analyst'],
+      icon: BarChart3,
+      color: 'bg-purple-500',
+      description: t['business-analystDesc'],
+      examples: language === 'ar' ? [
+        'كيف أحلل متطلبات العمل للمشروع الجديد؟',
+        'ما هي أفضل طرق توثيق العمليات التجارية؟',
+        'كيف أصمم تدفق العمل للنظام الجديد؟',
+        'اشرح لي كيفية كتابة وثيقة متطلبات الأعمال'
+      ] : [
+        'How do I analyze business requirements for a new project?',
+        'What are the best methods for documenting business processes?',
+        'How do I design workflow for a new system?',
+        'Explain how to write a Business Requirements Document'
+      ]
+    },
+    backend: {
+      name: t.backend,
+      icon: Server,
+      color: 'bg-green-600',
+      description: t.backendDesc,
+      examples: language === 'ar' ? [
+        'كيف أصمم قاعدة بيانات فعالة؟',
+        'ما هي أفضل ممارسات تطوير API؟',
+        'كيف أحسن أداء الاستعلامات في قاعدة البيانات؟',
+        'اشرح لي مفهوم المعمارية المجهرية'
+      ] : [
+        'How do I design an efficient database?',
+        'What are the best practices for API development?',
+        'How do I optimize database query performance?',
+        'Explain microservices architecture concepts'
+      ]
+    },
+    mobile: {
+      name: t.mobile,
+      icon: Smartphone,
+      color: 'bg-orange-500',
+      description: t.mobileDesc,
+      examples: language === 'ar' ? [
+        'كيف أطور تطبيق محمول باستخدام React Native؟',
+        'ما هي أفضل ممارسات تصميم واجهة التطبيقات المحمولة؟',
+        'كيف أحسن أداء التطبيق المحمول؟',
+        'اشرح لي الفرق بين التطوير الأصيل والمختلط'
+      ] : [
+        'How do I develop a mobile app using React Native?',
+        'What are the best practices for mobile UI design?',
+        'How do I optimize mobile app performance?',
+        'Explain the difference between native and hybrid development'
+      ]
+    },
+    devops: {
+      name: t.devops,
+      icon: Settings,
+      color: 'bg-gray-600',
+      description: t.devopsDesc,
+      examples: language === 'ar' ? [
+        'كيف أنشئ خط إنتاج CI/CD؟',
+        'ما هي أفضل ممارسات إدارة الحاويات؟',
+        'كيف أراقب أداء التطبيق في الإنتاج؟',
+        'اشرح لي مفهوم Infrastructure as Code'
+      ] : [
+        'How do I set up a CI/CD pipeline?',
+        'What are the best practices for container management?',
+        'How do I monitor application performance in production?',
+        'Explain Infrastructure as Code concepts'
+      ]
+    },
+    fullstack: {
+      name: t.fullstack,
+      icon: Database,
+      color: 'bg-indigo-600',
+      description: t.fullstackDesc,
+      examples: language === 'ar' ? [
+        'كيف أبني تطبيق ويب متكامل من الصفر؟',
+        'ما هي أفضل التقنيات للتطوير المتكامل؟',
+        'كيف أربط الفرونت إند بالباك إند بكفاءة؟',
+        'اشرح لي معمارية التطبيقات الحديثة'
+      ] : [
+        'How do I build a complete web application from scratch?',
+        'What are the best technologies for full-stack development?',
+        'How do I efficiently connect frontend with backend?',
+        'Explain modern application architecture'
       ]
     }
   };
@@ -314,7 +419,177 @@ Would you like me to create detailed test cases or analyze specific testing scen
 4. Implementation phases
 5. Testing and performance optimization
 
-Would you like me to dive deeper into technical implementation or review specific code?`
+Would you like me to dive deeper into technical implementation or review specific code?`,
+
+      'business-analyst': language === 'ar' ?
+        `كمحلل أعمال، سأساعدك في: ${input}
+
+**تحليل متطلبات الأعمال:**
+- **تحديد أصحاب المصلحة**: تحديد جميع الأطراف المعنية
+- **تحليل العمليات الحالية**: فهم الوضع الراهن والتحديات
+- **تحديد المتطلبات**: توثيق المتطلبات الوظيفية وغير الوظيفية
+- **تصميم الحلول**: اقتراح حلول تقنية تلبي احتياجات العمل
+
+**خطة العمل:**
+1. جمع وتحليل المتطلبات
+2. تحليل الفجوات في العمليات الحالية
+3. تصميم العمليات المحسنة
+4. توثيق مواصفات النظام
+5. التحقق من المتطلبات مع أصحاب المصلحة
+
+هل تريد مني تطوير وثيقة متطلبات مفصلة أو تحليل عملية معينة؟` :
+        `As a Business Analyst, I'll help you with: ${input}
+
+**Business Requirements Analysis:**
+- **Stakeholder Identification**: Identify all involved parties
+- **Current Process Analysis**: Understand current state and challenges
+- **Requirements Definition**: Document functional and non-functional requirements
+- **Solution Design**: Propose technical solutions that meet business needs
+
+**Work Plan:**
+1. Requirements gathering and analysis
+2. Gap analysis of current processes
+3. Improved process design
+4. System specification documentation
+5. Requirements validation with stakeholders
+
+Would you like me to develop a detailed requirements document or analyze a specific process?`,
+
+      backend: language === 'ar' ?
+        `كمطور خادم، سأساعدك في: ${input}
+
+**التحليل التقني للخادم:**
+- **تصميم قاعدة البيانات**: هيكل بيانات محسن وقابل للتوسع
+- **معمارية API**: تصميم واجهات برمجية فعالة وآمنة
+- **الأمان**: تطبيق أفضل ممارسات الحماية والتشفير
+- **الأداء**: تحسين سرعة الاستجابة والتعامل مع الأحمال
+
+**استراتيجية التطوير:**
+1. تحليل متطلبات النظام والبيانات
+2. تصميم قاعدة البيانات والعلاقات
+3. تطوير واجهات API وخدمات الويب
+4. تطبيق طبقات الأمان والحماية
+5. اختبار الأداء والتحسين
+
+هل تريد مني تصميم هيكل قاعدة بيانات أو مراجعة كود API محدد؟` :
+        `As a Backend Developer, I'll help you with: ${input}
+
+**Server-Side Technical Analysis:**
+- **Database Design**: Optimized and scalable data structure
+- **API Architecture**: Efficient and secure programming interfaces
+- **Security**: Implementation of best practices for protection and encryption
+- **Performance**: Response speed optimization and load handling
+
+**Development Strategy:**
+1. System and data requirements analysis
+2. Database design and relationships
+3. API and web services development
+4. Security layers implementation
+5. Performance testing and optimization
+
+Would you like me to design a database structure or review specific API code?`,
+
+      mobile: language === 'ar' ?
+        `كمطور تطبيقات محمولة، سأساعدك في: ${input}
+
+**تحليل تطوير التطبيقات المحمولة:**
+- **اختيار المنصة**: تحديد أفضل نهج للتطوير (أصيل أم مختلط)
+- **تصميم واجهة المستخدم**: واجهات محسنة للشاشات الصغيرة
+- **الأداء**: تحسين استهلاك البطارية وسرعة التطبيق
+- **التجربة**: تطبيق أفضل ممارسات تجربة المستخدم المحمولة
+
+**خطة التطوير:**
+1. تحليل متطلبات التطبيق والمنصات المستهدفة
+2. تصميم واجهة المستخدم والتفاعل
+3. تطوير الوظائف الأساسية
+4. اختبار التوافق مع الأجهزة المختلفة
+5. نشر التطبيق في المتاجر
+
+هل تريد مني مساعدتك في تصميم واجهة محددة أو مراجعة كود التطبيق؟` :
+        `As a Mobile Developer, I'll help you with: ${input}
+
+**Mobile App Development Analysis:**
+- **Platform Selection**: Determine best development approach (native vs hybrid)
+- **UI Design**: Interfaces optimized for small screens
+- **Performance**: Battery consumption and app speed optimization
+- **Experience**: Mobile UX best practices implementation
+
+**Development Plan:**
+1. App requirements and target platforms analysis
+2. UI design and interaction
+3. Core functionality development
+4. Cross-device compatibility testing
+5. App store deployment
+
+Would you like me to help with specific interface design or review app code?`,
+
+      devops: language === 'ar' ?
+        `كمهندس DevOps، سأساعدك في: ${input}
+
+**تحليل البنية التحتية والنشر:**
+- **خط الإنتاج المستمر**: إعداد CI/CD pipeline فعال
+- **إدارة الحاويات**: تطبيق Docker وKubernetes
+- **المراقبة**: نظم مراقبة الأداء والتنبيهات
+- **الأمان**: حماية البنية التحتية والبيانات
+
+**استراتيجية DevOps:**
+1. تحليل البنية التحتية الحالية
+2. تصميم خط النشر المؤتمت
+3. إعداد بيئات التطوير والإنتاج
+4. تطبيق أنظمة المراقبة
+5. تحسين الأداء والأمان
+
+هل تريد مني مساعدتك في إعداد CI/CD أو تحسين البنية التحتية؟` :
+        `As a DevOps Engineer, I'll help you with: ${input}
+
+**Infrastructure and Deployment Analysis:**
+- **Continuous Pipeline**: Efficient CI/CD pipeline setup
+- **Container Management**: Docker and Kubernetes implementation
+- **Monitoring**: Performance monitoring and alerting systems
+- **Security**: Infrastructure and data protection
+
+**DevOps Strategy:**
+1. Current infrastructure analysis
+2. Automated deployment pipeline design
+3. Development and production environments setup
+4. Monitoring systems implementation
+5. Performance and security optimization
+
+Would you like me to help with CI/CD setup or infrastructure optimization?`,
+
+      fullstack: language === 'ar' ?
+        `كمطور ويب متكامل، سأساعدك في: ${input}
+
+**تحليل التطوير المتكامل:**
+- **المعمارية الشاملة**: تصميم نظام متكامل من الفرونت إند للباك إند
+- **اختيار التقنيات**: أفضل مجموعة تقنيات للمشروع
+- **التكامل**: ربط فعال بين طبقات التطبيق المختلفة
+- **التوسع**: تصميم قابل للنمو والتطوير
+
+**خطة التطوير المتكاملة:**
+1. تحليل المتطلبات الشاملة للمشروع
+2. تصميم معمارية النظام الكاملة
+3. تطوير واجهة المستخدم والخدمات
+4. تطوير قاعدة البيانات والAPI
+5. اختبار التكامل والنشر
+
+هل تريد مني مساعدتك في تصميم معمارية شاملة أو مراجعة التكامل بين الطبقات؟` :
+        `As a Full Stack Developer, I'll help you with: ${input}
+
+**Full Stack Development Analysis:**
+- **Comprehensive Architecture**: Complete system design from frontend to backend
+- **Technology Selection**: Best technology stack for the project
+- **Integration**: Efficient connection between different application layers
+- **Scalability**: Growth and development-ready design
+
+**Integrated Development Plan:**
+1. Comprehensive project requirements analysis
+2. Complete system architecture design
+3. User interface and services development
+4. Database and API development
+5. Integration testing and deployment
+
+Would you like me to help with comprehensive architecture design or review integration between layers?`
     };
 
     return responses[role as keyof typeof responses];
