@@ -10,6 +10,7 @@ export interface Integration {
   projectKey?: string;
   workspaceId?: string;
   lastSync?: Date;
+  selectedProjects?: string[];
 }
 
 export interface IntegrationSettings {
@@ -20,10 +21,11 @@ export interface IntegrationSettings {
     workspaceId?: string;
     username?: string;
     enabled: boolean;
+    selectedProjects?: string[];
   };
 }
 
-export type IntegrationType = 'axure' | 'jira' | 'clickup' | 'devops';
+export type IntegrationType = 'axure' | 'jira' | 'clickup' | 'devops' | 'bitbucket';
 
 export interface IntegrationConfig {
   id: IntegrationType;
@@ -36,6 +38,16 @@ export interface IntegrationConfig {
     projectKey?: boolean;
     workspaceId?: boolean;
     username?: boolean;
+    projectSelection?: boolean;
   };
   color: string;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  key?: string;
+  description?: string;
+  status?: string;
+  lastActivity?: string;
 }

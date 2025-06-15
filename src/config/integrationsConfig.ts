@@ -22,7 +22,8 @@ export const INTEGRATIONS_CONFIG: IntegrationConfig[] = [
     fields: {
       apiKey: true,
       serverUrl: true,
-      username: true
+      username: true,
+      projectSelection: true
     },
     color: 'bg-blue-600'
   },
@@ -33,7 +34,8 @@ export const INTEGRATIONS_CONFIG: IntegrationConfig[] = [
     description: 'تكامل مع ClickUp لإدارة المهام والفرق',
     fields: {
       apiKey: true,
-      workspaceId: true
+      workspaceId: true,
+      projectSelection: true
     },
     color: 'bg-purple-500'
   },
@@ -41,12 +43,26 @@ export const INTEGRATIONS_CONFIG: IntegrationConfig[] = [
     id: 'devops',
     name: 'Azure DevOps',
     icon: '⚙️',
-    description: 'تكامل مع Azure DevOps لإدارة التطوير والنشر',
+    description: 'تكامل مع Azure DevOps لإدارة التطوير والنشر - اختر مشاريعك المسجلة',
     fields: {
       apiKey: true,
       serverUrl: true,
-      projectKey: true
+      username: true,
+      projectSelection: true
     },
     color: 'bg-indigo-500'
+  },
+  {
+    id: 'bitbucket',
+    name: 'Bitbucket',
+    icon: '🪣',
+    description: 'تكامل مع Bitbucket لإدارة الكود والمراجعات - اختر مستودعاتك المسجلة',
+    fields: {
+      apiKey: true,
+      serverUrl: true,
+      username: true,
+      projectSelection: true
+    },
+    color: 'bg-blue-700'
   }
 ];

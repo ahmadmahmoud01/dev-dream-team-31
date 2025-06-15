@@ -6,7 +6,8 @@ const DEFAULT_SETTINGS: IntegrationSettings = {
   axure: { enabled: false },
   jira: { enabled: false },
   clickup: { enabled: false },
-  devops: { enabled: false }
+  devops: { enabled: false },
+  bitbucket: { enabled: false }
 };
 
 export const useIntegrations = () => {
@@ -42,7 +43,7 @@ export const useIntegrations = () => {
     try {
       // محاكاة اختبار الاتصال
       await new Promise(resolve => setTimeout(resolve, 2000));
-      return Math.random() > 0.3; // نجاح بنسبة 70٪
+      return Math.random() > 0.2; // نجاح بنسبة 80٪
     } catch (error) {
       return false;
     } finally {
@@ -54,11 +55,24 @@ export const useIntegrations = () => {
     return settings[integrationType]?.enabled || false;
   };
 
+  const getSelectedProjects = (integrationType: IntegrationType) => {
+    return settings[integrationType]?.selectedProjects || [];
+  };
+
+  const updateSelectedProjects = (integrationType: IntegrationType, projectIds: string[]) => {
+    saveIntegrationSettings(integrationType, {
+      ...settings[integrationType],
+      selectedProjects: projectIds
+    });
+  };
+
   return {
     settings,
     saveIntegrationSettings,
     testConnection,
     isIntegrationEnabled,
+    getSelectedProjects,
+    updateSelectedProjects,
     isLoading
   };
 };

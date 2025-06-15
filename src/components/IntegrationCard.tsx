@@ -10,6 +10,7 @@ import { IntegrationConfig, IntegrationType } from '@/types/integrations';
 import { useIntegrations } from '@/hooks/useIntegrations';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ProjectSelector from './ProjectSelector';
 
 interface IntegrationCardProps {
   config: IntegrationConfig;
@@ -17,7 +18,14 @@ interface IntegrationCardProps {
 }
 
 const IntegrationCard: React.FC<IntegrationCardProps> = ({ config, language }) => {
-  const { settings, saveIntegrationSettings, testConnection, isLoading } = useIntegrations();
+  const { 
+    settings, 
+    saveIntegrationSettings, 
+    testConnection, 
+    isLoading,
+    getSelectedProjects,
+    updateSelectedProjects
+  } = useIntegrations();
   const { toast } = useToast();
   const [isExpanded, setIsExpanded] = useState(false);
   
@@ -26,6 +34,7 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({ config, language }) =
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   const isEnabled = currentSettings.enabled || false;
+  const selectedProjects = getSelectedProjects(config.id);
 
   const handleSave = () => {
     saveIntegrationSettings(config.id, tempSettings);
@@ -45,10 +54,14 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({ config, language }) =
         ? (language === 'ar' ? 'نجح الاتصال' : 'Connection Successful')
         : (language === 'ar' ? 'فشل الاتصال' : 'Connection Failed'),
       description: success
-        ? (language === 'ar' ? 'تم الاتصال بنجاح' : 'Successfully connected to the service')
+        ? (language === 'ar' ? 'تم الاتصال بنجاح بالخدمة' : 'Successfully connected to the service')
         : (language === 'ar' ? 'تحقق من الإعدادات' : 'Please check your settings'),
       variant: success ? 'default' : 'destructive'
     });
+  };
+
+  const handleProjectsChange = (projectIds: string[]) => {
+    updateSelectedProjects(config.id, projectIds);
   };
 
   const getStatusIcon = () => {
@@ -80,6 +93,18 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({ config, language }) =
           </Badge>
         </div>
       </div>
+
+      {/* Selected Projects Summary */}
+      {isEnabled && selectedProjects.length > 0 && (
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+          <p className="text-sm text-blue-700">
+            {language === 'ar' 
+              ? `${selectedProjects.length} مشروع مختار`
+              : `${selectedProjects.length} project(s) selected`
+            }
+          </p>
+        </div>
+      )}
 
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
@@ -157,6 +182,17 @@ const IntegrationCard: React.FC<IntegrationCardProps> = ({ config, language }) =
                 placeholder={language === 'ar' ? 'اسم المستخدم' : 'Username'}
               />
             </div>
+          )}
+
+          {/* Project Selection Component */}
+          {config.fields.projectSelection && (
+            <ProjectSelector
+              integrationType={config.id}
+              settings={currentSettings}
+              selectedProjects={selectedProjects}
+              onProjectsChange={handleProjectsChange}
+              language={language}
+            />
           )}
 
           <div className="flex space-x-2 pt-2">
