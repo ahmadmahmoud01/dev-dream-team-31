@@ -1,27 +1,40 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Upload, Download, Code, TestTube, FileText, User, Lightbulb } from 'lucide-react';
+import { Send, Upload, Download, Code, TestTube, FileText, User, Lightbulb, Trash2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 interface Message {
   id: string;
   content: string;
   sender: 'user' | 'ai';
   timestamp: Date;
-  aiRole?: 'tester' | 'analyst' | 'engineer';
+  aiRole?: 'tester' | 'frontend';
+}
+
+interface ConversationMemory {
+  id: string;
+  title: string;
+  messages: Message[];
+  lastUpdated: Date;
+  role: 'tester' | 'frontend';
 }
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'tester' | 'analyst' | 'engineer'>('engineer');
+  const [selectedRole, setSelectedRole] = useState<'tester' | 'frontend'>('tester');
   const [isLoading, setIsLoading] = useState(false);
+  const [conversations, setConversations] = useState<ConversationMemory[]>([]);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [language, setLanguage] = useState<'ar' | 'en'>('ar');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -31,47 +44,178 @@ const ChatInterface = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Load conversations from localStorage on mount
+  useEffect(() => {
+    const savedConversations = localStorage.getItem('chatbot-conversations');
+    if (savedConversations) {
+      const parsed = JSON.parse(savedConversations);
+      setConversations(parsed.map((conv: any) => ({
+        ...conv,
+        lastUpdated: new Date(conv.lastUpdated),
+        messages: conv.messages.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }))
+      })));
+    }
+  }, []);
+
+  // Save conversations to localStorage
+  const saveConversations = (newConversations: ConversationMemory[]) => {
+    localStorage.setItem('chatbot-conversations', JSON.stringify(newConversations));
+    setConversations(newConversations);
+  };
+
+  const translations = {
+    ar: {
+      title: 'GPT Mate',
+      subtitle: 'مساعد الذكي لتطوير البرمجيات',
+      tester: 'مختبر البرمجيات',
+      frontend: 'مطور واجهات المستخدم',
+      testerDesc: 'خبير في تصميم حالات الاختبار وتحليل الأخطاء وعمليات ضمان الجودة',
+      frontendDesc: 'متخصص في تطوير واجهات المستخدم وتقنيات الفرونت إند الحديثة',
+      newChat: 'محادثة جديدة',
+      saveChat: 'حفظ المحادثة',
+      clearHistory: 'مسح السجل',
+      export: 'تصدير',
+      send: 'إرسال',
+      thinking: 'الذكي الاصطناعي يفكر...',
+      placeholder: 'اسأل مساعدك الذكي أي شيء...',
+      examples: 'جرب هذه الأمثلة:',
+      uploadDocs: 'ارفع الملفات للتحليل',
+      pressEnter: 'اضغط Enter للإرسال، Shift+Enter لسطر جديد',
+      hello: 'مرحباً! أنا مساعدك الذكي',
+      getStarted: 'ارفع المستندات أو اطرح الأسئلة أو انقر على مثال أعلاه للبدء!'
+    },
+    en: {
+      title: 'GPT Mate',
+      subtitle: 'AI Software Development Assistant',
+      tester: 'Software Tester',
+      frontend: 'Frontend Developer',
+      testerDesc: 'Expert in test case design, bug analysis, and QA processes',
+      frontendDesc: 'Specialist in UI/UX development and modern frontend technologies',
+      newChat: 'New Chat',
+      saveChat: 'Save Chat',
+      clearHistory: 'Clear History',
+      export: 'Export',
+      send: 'Send',
+      thinking: 'AI is thinking...',
+      placeholder: 'Ask your AI assistant anything...',
+      examples: 'Try these examples:',
+      uploadDocs: 'Upload files for analysis',
+      pressEnter: 'Press Enter to send, Shift+Enter for new line',
+      hello: 'Hello! I\'m your AI',
+      getStarted: 'Upload documents, ask questions, or click on an example above to get started!'
+    }
+  };
+
+  const t = translations[language];
+
   const roleConfig = {
     tester: {
-      name: 'Software Tester',
+      name: t.tester,
       icon: TestTube,
       color: 'bg-emerald-500',
-      description: 'Expert in test case design, bug analysis, and QA processes',
-      examples: [
+      description: t.testerDesc,
+      examples: language === 'ar' ? [
         'كيف أختبر واجهة تسجيل الدخول؟',
         'أكتب لي حالات اختبار لنظام التجارة الإلكترونية',
         'ما هي أفضل ممارسات اختبار الأداء؟',
         'كيف أتأكد من أمان التطبيق؟'
+      ] : [
+        'How do I test a login interface?',
+        'Write test cases for an e-commerce system',
+        'What are the best performance testing practices?',
+        'How do I ensure application security?'
       ]
     },
-    analyst: {
-      name: 'BRD Analyst',
-      icon: FileText,
-      color: 'bg-blue-500',
-      description: 'Specialist in requirements analysis and business documentation',
-      examples: [
-        'اكتب لي وثيقة متطلبات لنظام إدارة المستودعات',
-        'حلل متطلبات العمل لتطبيق التوصيل',
-        'ما هي الخطوات لكتابة BRD فعال؟',
-        'كيف أحدد أصحاب المصلحة في المشروع؟'
-      ]
-    },
-    engineer: {
-      name: 'Software Engineer',
+    frontend: {
+      name: t.frontend,
       icon: Code,
-      color: 'bg-purple-500',
-      description: 'Full-stack developer with expertise in architecture and coding',
-      examples: [
-        'اكتب لي API لإدارة المستخدمين بـ Node.js',
-        'كيف أصمم قاعدة بيانات لنظام التجارة الإلكترونية؟',
-        'ما هي أفضل ممارسات React.js؟',
-        'راجع هذا الكود وحسن الأداء'
+      color: 'bg-blue-500',
+      description: t.frontendDesc,
+      examples: language === 'ar' ? [
+        'كيف أنشئ مكون React قابل لإعادة الاستخدام؟',
+        'ما هي أفضل ممارسات CSS للتصميم المتجاوب؟',
+        'كيف أحسن أداء التطبيق في الفرونت إند؟',
+        'اشرح لي مفهوم State Management في React'
+      ] : [
+        'How do I create a reusable React component?',
+        'What are the best CSS practices for responsive design?',
+        'How do I optimize frontend application performance?',
+        'Explain State Management concepts in React'
       ]
     }
   };
 
   const handleExampleClick = (example: string) => {
     setInputMessage(example);
+  };
+
+  const createNewConversation = () => {
+    const newConversation: ConversationMemory = {
+      id: Date.now().toString(),
+      title: `${roleConfig[selectedRole].name} - ${new Date().toLocaleDateString('ar')}`,
+      messages: [],
+      lastUpdated: new Date(),
+      role: selectedRole
+    };
+    
+    const updatedConversations = [...conversations, newConversation];
+    saveConversations(updatedConversations);
+    setCurrentConversationId(newConversation.id);
+    setMessages([]);
+
+    toast({
+      title: language === 'ar' ? 'تم إنشاء محادثة جديدة' : 'New conversation created',
+      description: language === 'ar' ? 'يمكنك الآن بدء محادثة جديدة' : 'You can now start a new conversation'
+    });
+  };
+
+  const loadConversation = (conversationId: string) => {
+    const conversation = conversations.find(c => c.id === conversationId);
+    if (conversation) {
+      setMessages(conversation.messages);
+      setSelectedRole(conversation.role);
+      setCurrentConversationId(conversationId);
+    }
+  };
+
+  const saveCurrentConversation = () => {
+    if (!currentConversationId) {
+      createNewConversation();
+      return;
+    }
+
+    const updatedConversations = conversations.map(conv => {
+      if (conv.id === currentConversationId) {
+        return {
+          ...conv,
+          messages,
+          lastUpdated: new Date()
+        };
+      }
+      return conv;
+    });
+
+    saveConversations(updatedConversations);
+    
+    toast({
+      title: language === 'ar' ? 'تم حفظ المحادثة' : 'Conversation saved',
+      description: language === 'ar' ? 'تم حفظ محادثتك بنجاح' : 'Your conversation has been saved successfully'
+    });
+  };
+
+  const clearAllHistory = () => {
+    setConversations([]);
+    setMessages([]);
+    setCurrentConversationId(null);
+    localStorage.removeItem('chatbot-conversations');
+    
+    toast({
+      title: language === 'ar' ? 'تم مسح السجل' : 'History cleared',
+      description: language === 'ar' ? 'تم مسح جميع المحادثات' : 'All conversations have been cleared'
+    });
   };
 
   const handleSendMessage = async () => {
@@ -106,7 +250,23 @@ const ChatInterface = () => {
 
   const generateRoleBasedResponse = (input: string, role: string) => {
     const responses = {
-      tester: `As a Software Tester, I'll help you with: ${input}
+      tester: language === 'ar' ? 
+        `كمختبر برمجيات، سأساعدك في: ${input}
+
+**استراتيجية الاختبار الموصى بها:**
+- **الاختبار الوظيفي**: التحقق من أن الوظائف الأساسية تلبي المتطلبات
+- **تحليل الحالات الحدية**: اختبار الشروط الحدية وسيناريوهات الأخطاء
+- **اختبار الأداء**: ضمان أن النظام يتحمل الحمولة المتوقعة
+- **اختبار الأمان**: التحقق من حماية البيانات وتحكم الوصول
+
+**حالات الاختبار المقترحة:**
+1. سيناريوهات المسار السعيد
+2. حالات الاختبار السلبية
+3. اختبارات التحقق من البيانات
+4. نقاط اختبار التكامل
+
+هل تريد مني إنشاء حالات اختبار مفصلة أو تحليل سيناريوهات اختبار محددة؟` :
+        `As a Software Tester, I'll help you with: ${input}
 
 **Test Strategy Recommendation:**
 - **Functional Testing**: Verify core functionality meets requirements
@@ -122,39 +282,39 @@ const ChatInterface = () => {
 
 Would you like me to create detailed test cases or analyze specific testing scenarios?`,
 
-      analyst: `As a BRD Analyst, I'll analyze: ${input}
+      frontend: language === 'ar' ?
+        `كمطور واجهات المستخدم، سأساعدك في: ${input}
 
-**Requirements Analysis:**
-- **Functional Requirements**: Core system capabilities needed
-- **Non-Functional Requirements**: Performance, security, usability standards
-- **Stakeholder Impact**: User roles and business process changes
-- **Acceptance Criteria**: Measurable success metrics
+**التحليل التقني:**
+- **توصيات التصميم**: أنماط تصميم واجهات قابلة للتوسع
+- **اختيار التقنيات**: أفضل الأدوات والمكتبات للمشروع
+- **استراتيجية التطوير**: نهج تطوير متدرج ومنظم
+- **جودة الكود**: أفضل الممارسات والمعايير
 
-**Documentation Structure:**
-1. Executive Summary
-2. Business Objectives
-3. Functional Specifications
-4. Technical Requirements
-5. Risk Assessment
+**نهج التطوير:**
+1. تحليل المتطلبات وتفكيكها
+2. تصميم هيكل المكونات
+3. تصميم واجهة المستخدم والتفاعل
+4. مراحل التنفيذ
+5. اختبار وتحسين الأداء
 
-Would you like me to help structure your BRD or analyze specific requirements?`,
-
-      engineer: `As a Software Engineer, I'll help you with: ${input}
+هل تريد مني التعمق أكثر في التنفيذ التقني أو مراجعة كود محدد؟` :
+        `As a Frontend Developer, I'll help you with: ${input}
 
 **Technical Analysis:**
-- **Architecture Recommendations**: Scalable system design patterns
+- **Design Recommendations**: Scalable UI design patterns
 - **Technology Stack**: Optimal frameworks and tools selection
-- **Implementation Strategy**: Phased development approach
+- **Development Strategy**: Structured development approach
 - **Code Quality**: Best practices and standards
 
 **Development Approach:**
-1. Requirements breakdown
-2. System architecture design
-3. API design and data modeling
+1. Requirements analysis and breakdown
+2. Component architecture design
+3. UI/UX design and interaction
 4. Implementation phases
-5. Testing and deployment strategy
+5. Testing and performance optimization
 
-Would you like me to dive deeper into the technical implementation or review specific code?`
+Would you like me to dive deeper into technical implementation or review specific code?`
     };
 
     return responses[role as keyof typeof responses];
@@ -175,185 +335,245 @@ Would you like me to dive deeper into the technical implementation or review spe
   const RoleIcon = currentRole.icon;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-4">
-        <div className="flex items-center justify-between max-w-4xl mx-auto">
-          <div className="flex items-center space-x-3">
+    <div className={`flex h-screen bg-gray-50 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
+      {/* Sidebar */}
+      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+        {/* Sidebar Header */}
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <div className={`p-2 rounded-lg ${currentRole.color} text-white`}>
                 <RoleIcon className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">GPT Mate</h1>
-                <p className="text-sm text-gray-500">AI Software Development Assistant</p>
+                <h1 className="text-lg font-semibold text-gray-900">{t.title}</h1>
+                <p className="text-xs text-gray-500">{t.subtitle}</p>
               </div>
             </div>
           </div>
-          
-          <div className="flex items-center space-x-3">
-            <Select value={selectedRole} onValueChange={(value: any) => setSelectedRole(value)}>
-              <SelectTrigger className="w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(roleConfig).map(([key, config]) => {
-                  const Icon = config.icon;
-                  return (
-                    <SelectItem key={key} value={key}>
-                      <div className="flex items-center space-x-2">
-                        <Icon className="w-4 h-4" />
-                        <span>{config.name}</span>
-                      </div>
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
+
+          {/* Language Toggle */}
+          <div className="flex items-center space-x-2 mb-4">
+            <Button
+              variant={language === 'ar' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setLanguage('ar')}
+            >
+              العربية
+            </Button>
+            <Button
+              variant={language === 'en' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setLanguage('en')}
+            >
+              English
+            </Button>
+          </div>
+
+          {/* Role Selection */}
+          <Select value={selectedRole} onValueChange={(value: any) => setSelectedRole(value)}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(roleConfig).map(([key, config]) => {
+                const Icon = config.icon;
+                return (
+                  <SelectItem key={key} value={key}>
+                    <div className="flex items-center space-x-2">
+                      <Icon className="w-4 h-4" />
+                      <span>{config.name}</span>
+                    </div>
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 mt-4">
+            <Button size="sm" onClick={createNewConversation} className="flex-1">
+              <FileText className="w-4 h-4 mr-1" />
+              {t.newChat}
+            </Button>
+            <Button size="sm" variant="outline" onClick={saveCurrentConversation}>
+              <Save className="w-4 h-4" />
+            </Button>
+            <Button size="sm" variant="outline" onClick={clearAllHistory}>
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Conversation History */}
+        <div className="flex-1 overflow-y-auto p-4">
+          <h3 className="text-sm font-medium text-gray-700 mb-3">المحادثات السابقة</h3>
+          <div className="space-y-2">
+            {conversations.map((conversation) => (
+              <Card
+                key={conversation.id}
+                className={`p-3 cursor-pointer transition-colors hover:bg-gray-50 ${
+                  currentConversationId === conversation.id ? 'ring-2 ring-blue-500' : ''
+                }`}
+                onClick={() => loadConversation(conversation.id)}
+              >
+                <div className="flex items-center space-x-2 mb-1">
+                  <div className={`p-1 rounded ${roleConfig[conversation.role].color} text-white`}>
+                    {React.createElement(roleConfig[conversation.role].icon, { className: 'w-3 h-3' })}
+                  </div>
+                  <span className="text-xs font-medium">{roleConfig[conversation.role].name}</span>
+                </div>
+                <p className="text-xs text-gray-600 truncate">{conversation.title}</p>
+                <p className="text-xs text-gray-400">{conversation.lastUpdated.toLocaleDateString('ar')}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Badge variant="secondary" className="flex items-center space-x-1">
+                <RoleIcon className="w-3 h-3" />
+                <span>{currentRole.name}</span>
+              </Badge>
+              <span className="text-sm text-gray-600">{currentRole.description}</span>
+            </div>
             
             <Button variant="outline" size="sm">
               <Download className="w-4 h-4 mr-2" />
-              Export
+              {t.export}
             </Button>
           </div>
         </div>
-      </div>
 
-      {/* Role Description */}
-      <div className="bg-white border-b border-gray-100 p-3">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center space-x-2">
-            <Badge variant="secondary" className="flex items-center space-x-1">
-              <RoleIcon className="w-3 h-3" />
-              <span>{currentRole.name}</span>
-            </Badge>
-            <span className="text-sm text-gray-600">{currentRole.description}</span>
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-4">
+          <div className="max-w-4xl mx-auto space-y-4">
+            {messages.length === 0 && (
+              <div className="text-center py-8">
+                <div className={`inline-flex p-4 rounded-full ${currentRole.color} text-white mb-4`}>
+                  <RoleIcon className="w-8 h-8" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {t.hello} {currentRole.name}
+                </h3>
+                <p className="text-gray-600 mb-6">{currentRole.description}</p>
+                
+                {/* Examples Section */}
+                <div className="bg-gray-50 rounded-lg p-6 mb-4">
+                  <div className="flex items-center justify-center space-x-2 mb-4">
+                    <Lightbulb className="w-5 h-5 text-amber-500" />
+                    <h4 className="text-md font-medium text-gray-800">{t.examples}</h4>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {currentRole.examples.map((example, index) => (
+                      <Card
+                        key={index}
+                        className="p-3 cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-blue-500 bg-white"
+                        onClick={() => handleExampleClick(example)}
+                      >
+                        <p className="text-sm text-gray-700 text-right">{example}</p>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+                
+                <p className="text-sm text-gray-500">
+                  {t.getStarted}
+                </p>
+              </div>
+            )}
+
+            {messages.map((message) => (
+              <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-3xl ${message.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200'} rounded-lg p-4 shadow-sm`}>
+                  {message.sender === 'ai' && (
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className={`p-1 rounded ${roleConfig[message.aiRole!].color} text-white`}>
+                        {React.createElement(roleConfig[message.aiRole!].icon, { className: 'w-3 h-3' })}
+                      </div>
+                      <span className="text-xs font-medium text-gray-600">
+                        {roleConfig[message.aiRole!].name}
+                      </span>
+                    </div>
+                  )}
+                  <div className={`${message.sender === 'user' ? 'text-white' : 'text-gray-900'} whitespace-pre-wrap`}>
+                    {message.content}
+                  </div>
+                  <div className={`text-xs mt-2 ${message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
+                    {message.timestamp.toLocaleTimeString('ar')}
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    <span className="text-gray-600">{t.thinking}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
           </div>
         </div>
-      </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="max-w-4xl mx-auto space-y-4">
-          {messages.length === 0 && (
-            <div className="text-center py-8">
-              <div className={`inline-flex p-4 rounded-full ${currentRole.color} text-white mb-4`}>
-                <RoleIcon className="w-8 h-8" />
+        {/* Input Area */}
+        <div className="bg-white border-t border-gray-200 p-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex space-x-3">
+              <div className="flex-1 relative">
+                <Textarea
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder={`${t.placeholder} ${currentRole.name}...`}
+                  className="min-h-[60px] resize-none pr-12"
+                  disabled={isLoading}
+                />
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="absolute right-2 top-2"
+                  onClick={handleFileUpload}
+                >
+                  <Upload className="w-4 h-4" />
+                </Button>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Hello! I'm your AI {currentRole.name}
-              </h3>
-              <p className="text-gray-600 mb-6">{currentRole.description}</p>
-              
-              {/* Examples Section */}
-              <div className="bg-gray-50 rounded-lg p-6 mb-4">
-                <div className="flex items-center justify-center space-x-2 mb-4">
-                  <Lightbulb className="w-5 h-5 text-amber-500" />
-                  <h4 className="text-md font-medium text-gray-800">Try these examples:</h4>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {currentRole.examples.map((example, index) => (
-                    <Card
-                      key={index}
-                      className="p-3 cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-blue-500 bg-white"
-                      onClick={() => handleExampleClick(example)}
-                    >
-                      <p className="text-sm text-gray-700 text-right">{example}</p>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-              
-              <p className="text-sm text-gray-500">
-                Upload documents, ask questions, or click on an example above to get started!
-              </p>
-            </div>
-          )}
-
-          {messages.map((message) => (
-            <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-3xl ${message.sender === 'user' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200'} rounded-lg p-4 shadow-sm`}>
-                {message.sender === 'ai' && (
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className={`p-1 rounded ${roleConfig[message.aiRole!].color} text-white`}>
-                      {React.createElement(roleConfig[message.aiRole!].icon, { className: 'w-3 h-3' })}
-                    </div>
-                    <span className="text-xs font-medium text-gray-600">
-                      {roleConfig[message.aiRole!].name}
-                    </span>
-                  </div>
-                )}
-                <div className={`${message.sender === 'user' ? 'text-white' : 'text-gray-900'} whitespace-pre-wrap`}>
-                  {message.content}
-                </div>
-                <div className={`text-xs mt-2 ${message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
-                  {message.timestamp.toLocaleTimeString()}
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600">AI is thinking...</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-      </div>
-
-      {/* Input Area */}
-      <div className="bg-white border-t border-gray-200 p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex space-x-3">
-            <div className="flex-1 relative">
-              <Textarea
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder={`Ask your AI ${currentRole.name} anything...`}
-                className="min-h-[60px] resize-none pr-12"
-                disabled={isLoading}
-              />
               <Button
-                size="sm"
-                variant="ghost"
-                className="absolute right-2 top-2"
-                onClick={handleFileUpload}
+                onClick={handleSendMessage}
+                disabled={!inputMessage.trim() || isLoading}
+                className="px-6"
               >
-                <Upload className="w-4 h-4" />
+                <Send className="w-4 h-4 mr-2" />
+                {t.send}
               </Button>
             </div>
-            <Button
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isLoading}
-              className="px-6"
-            >
-              <Send className="w-4 h-4 mr-2" />
-              Send
-            </Button>
-          </div>
-          
-          <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-            <span>Press Enter to send, Shift+Enter for new line</span>
-            <span>Upload files for analysis</span>
+            
+            <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+              <span>{t.pressEnter}</span>
+              <span>{t.uploadDocs}</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        className="hidden"
-        accept=".pdf,.doc,.docx,.txt,.md"
-        multiple
-      />
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          accept=".pdf,.doc,.docx,.txt,.md"
+          multiple
+        />
+      </div>
     </div>
   );
 };
