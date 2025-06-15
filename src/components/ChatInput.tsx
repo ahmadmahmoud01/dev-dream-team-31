@@ -1,11 +1,13 @@
 
-import React, { useRef } from 'react';
-import { Send, Upload } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Send, Upload, GitBranch } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { getRoleConfig } from '@/config/roleConfig';
 import { getTranslations } from '@/utils/translations';
 import { AIRole, Language } from '@/types/chat';
+import QuickRepositoryAccess from './QuickRepositoryAccess';
 
 interface ChatInputProps {
   inputMessage: string;
@@ -27,12 +29,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
   isLoading,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showRepositorySelector, setShowRepositorySelector] = useState(false);
   const t = getTranslations(language);
   const roleConfig = getRoleConfig(language);
   const currentRole = roleConfig[selectedRole];
 
   const handleFileUpload = () => {
     fileInputRef.current?.click();
+  };
+
+  const toggleRepositorySelector = () => {
+    setShowRepositorySelector(!showRepositorySelector);
   };
 
   return (
@@ -45,17 +52,39 @@ const ChatInput: React.FC<ChatInputProps> = ({
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={onKeyPress}
               placeholder={`${t.placeholder} ${currentRole.name}...`}
-              className="min-h-[60px] resize-none pr-12"
+              className="min-h-[60px] resize-none pr-20"
               disabled={isLoading}
             />
-            <Button
-              size="sm"
-              variant="ghost"
-              className="absolute right-2 top-2"
-              onClick={handleFileUpload}
-            >
-              <Upload className="w-4 h-4" />
-            </Button>
+            <div className="absolute right-2 top-2 flex space-x-1">
+              <Popover open={showRepositorySelector} onOpenChange={setShowRepositorySelector}>
+                <PopoverTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={toggleRepositorySelector}
+                    title={language === 'ar' ? 'اختيار مستودع' : 'Select Repository'}
+                  >
+                    <GitBranch className="w-4 h-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-96 p-0" align="end">
+                  <QuickRepositoryAccess 
+                    language={language}
+                    isOpen={showRepositorySelector}
+                    onToggle={toggleRepositorySelector}
+                  />
+                </PopoverContent>
+              </Popover>
+              
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleFileUpload}
+                title={language === 'ar' ? 'رفع ملفات' : 'Upload Files'}
+              >
+                <Upload className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
           <Button
             onClick={onSendMessage}
@@ -69,7 +98,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
         
         <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
           <span>{t.pressEnter}</span>
-          <span>{t.uploadDocs}</span>
+          <div className="flex items-center space-x-4">
+            <span>{language === 'ar' ? 'اختر مستودع أو ارفع الملفات' : 'Select repository or upload files'}</span>
+          </div>
         </div>
       </div>
 
