@@ -33,6 +33,7 @@ interface ChatLayoutProps {
   onLoadConversation: (conversationId: string) => void;
   onSendMessage: () => void;
   onKeyPress: (e: React.KeyboardEvent) => void;
+  onBackClick?: () => void;
 }
 
 const ChatLayout: React.FC<ChatLayoutProps> = ({
@@ -55,7 +56,8 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   onClearAllHistory,
   onLoadConversation,
   onSendMessage,
-  onKeyPress
+  onKeyPress,
+  onBackClick
 }) => {
   return (
     <div className={`flex h-screen bg-gray-50 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
@@ -79,7 +81,12 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
         {/* Header */}
         <div className="bg-white border-b border-gray-200 px-4 py-3">
           <div className="flex items-center justify-between">
-            <ChatHeader selectedRole={selectedRole} language={language} />
+            <ChatHeader 
+              selectedRole={selectedRole} 
+              language={language}
+              onBackClick={onBackClick}
+              showBackButton={messages.length > 0}
+            />
             <ChatActions language={language} />
           </div>
         </div>

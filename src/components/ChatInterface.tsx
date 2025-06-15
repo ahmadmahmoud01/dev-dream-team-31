@@ -60,6 +60,12 @@ const ChatInterface = () => {
     integrations
   });
 
+  const handleBackClick = () => {
+    setMessages([]);
+    setInputMessage('');
+    setCurrentConversationId(null);
+  };
+
   return (
     <ChatLayout
       messages={messages}
@@ -82,6 +88,7 @@ const ChatInterface = () => {
       onLoadConversation={handlers.handleLoadConversation}
       onSendMessage={handlers.handleSendMessage}
       onKeyPress={handlers.handleKeyPress}
+      onBackClick={handleBackClick}
     />
   );
 };
