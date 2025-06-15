@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText, Save, Trash2, Globe, Zap, Settings, Users } from 'lucide-react';
+import { FileText, Save, Trash2, Globe, Zap, Settings, Users, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ConversationMemory, AIRole, Language } from '@/types/chat';
@@ -98,15 +98,26 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
               {language === 'ar' ? 'التكاملات' : 'Integrations'}
             </Button>
           </div>
-          <Button
-            variant={currentPanel === 'roles' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => onPanelChange('roles')}
-            className="w-full"
-          >
-            <Users className="w-4 h-4 mr-1" />
-            {language === 'ar' ? 'إدارة الموظفين' : 'Role Management'}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant={currentPanel === 'roles' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onPanelChange('roles')}
+              className="flex-1"
+            >
+              <Users className="w-4 h-4 mr-1" />
+              {language === 'ar' ? 'الموظفين' : 'Roles'}
+            </Button>
+            <Button
+              variant={currentPanel === 'agents' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onPanelChange('agents')}
+              className="flex-1"
+            >
+              <Bot className="w-4 h-4 mr-1" />
+              {language === 'ar' ? 'الوكلاء' : 'Agents'}
+            </Button>
+          </div>
         </div>
 
         {/* Role Selection Grid - Only show when in chat panel */}

@@ -5,6 +5,7 @@ import WelcomeScreen from './WelcomeScreen';
 import MessageList from './MessageList';
 import IntegrationsPanel from './IntegrationsPanel';
 import RoleManagementPanel from './RoleManagementPanel';
+import AgentManagementPanel from './AgentManagementPanel';
 
 interface ChatMainContentProps {
   currentPanel: string;
@@ -31,6 +32,10 @@ const ChatMainContent: React.FC<ChatMainContentProps> = ({
 
   if (currentPanel === 'roles') {
     return <RoleManagementPanel language={language} />;
+  }
+
+  if (currentPanel === 'agents') {
+    return <AgentManagementPanel language={language} />;
   }
 
   return (

@@ -1,5 +1,4 @@
-
-import { TestTube, Code, BarChart3, Server, Smartphone, Settings, Database, Users, Calculator } from 'lucide-react';
+import { TestTube, Code, BarChart3, Server, Smartphone, Settings, Database, Users, Calculator, Crown } from 'lucide-react';
 import { AIRole, Language } from '@/types/chat';
 
 export interface RoleConfig {
@@ -13,6 +12,7 @@ export interface RoleConfig {
 export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> => {
   const translations = {
     ar: {
+      'product-manager': 'مدير المنتج',
       tester: 'مختبر البرمجيات',
       frontend: 'مطور واجهات المستخدم',
       'business-analyst': 'محلل الأعمال',
@@ -22,6 +22,7 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
       fullstack: 'مطور الويب المتكامل',
       'project-manager': 'مدير مشروع',
       'cost-accountant': 'حساب تكاليف',
+      'product-managerDesc': 'خبير في إدارة المنتجات وتوجيه فرق التطوير وإدارة الوكلاء الذكيين',
       testerDesc: 'خبير في تصميم حالات الاختبار وتحليل الأخطاء وعمليات ضمان الجودة',
       frontendDesc: 'متخصص في تطوير واجهات المستخدم وتقنيات الفرونت إند الحديثة',
       'business-analystDesc': 'خبير في تحليل متطلبات العمال وتصميم العمليات والحلول التقنية',
@@ -33,6 +34,7 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
       'cost-accountantDesc': 'متخصص في تحليل التكاليف وإعداد الميزانيات والتقارير المالية',
     },
     en: {
+      'product-manager': 'Product Manager',
       tester: 'Software Tester',
       frontend: 'Frontend Developer',
       'business-analyst': 'Business Analyst',
@@ -42,6 +44,7 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
       fullstack: 'Full Stack Developer',
       'project-manager': 'Project Manager',
       'cost-accountant': 'Cost Accountant',
+      'product-managerDesc': 'Expert in product management, development team leadership, and AI agent management',
       testerDesc: 'Expert in test case design, bug analysis, and QA processes',
       frontendDesc: 'Specialist in UI/UX development and modern frontend technologies',
       'business-analystDesc': 'Expert in business requirements analysis and process design',
@@ -57,6 +60,45 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
   const t = translations[language];
 
   return {
+    'product-manager': {
+      name: t['product-manager'],
+      icon: Crown,
+      color: 'bg-gradient-to-r from-purple-500 to-pink-500',
+      description: t['product-managerDesc'],
+      examples: language === 'ar' ? [
+        'قم بإنشاء وكيل ذكي جديد لتطوير الواجهات الأمامية',
+        'اسند مهمة اختبار النظام للوكيل المختص',
+        'ما هي أفضل استراتيجيات إدارة فريق التطوير؟',
+        'كيف أوزع المهام على الوكلاء المختلفين؟',
+        'أنشئ خطة تطوير منتج جديد مع تحديد الأدوار',
+        'راقب أداء الوكلاء وقدم تقرير التقدم',
+        'ما هي أولويات المشروع الحالي؟',
+        'كيف أحسن التعاون بين الوكلاء المختلفين؟',
+        'أعد جدولة المهام بناءً على الأولويات',
+        'حلل متطلبات العملاء وقسمها على الوكلاء',
+        'ما هي أفضل ممارسات إدارة المنتجات الرقمية؟',
+        'كيف أقيس نجاح المنتج والفريق؟',
+        'أنشئ استراتيجية لتطوير الميزات الجديدة',
+        'كيف أدير التغييرات في متطلبات المنتج؟',
+        'راجع وقيم أداء الوكلاء الذكيين'
+      ] : [
+        'Create a new AI agent for frontend development',
+        'Assign system testing task to the specialized agent',
+        'What are the best strategies for managing a development team?',
+        'How do I distribute tasks among different agents?',
+        'Create a new product development plan with role assignments',
+        'Monitor agent performance and provide progress report',
+        'What are the current project priorities?',
+        'How do I improve collaboration between different agents?',
+        'Reschedule tasks based on priorities',
+        'Analyze customer requirements and distribute to agents',
+        'What are the best practices for digital product management?',
+        'How do I measure product and team success?',
+        'Create a strategy for developing new features',
+        'How do I manage changes in product requirements?',
+        'Review and evaluate AI agent performance'
+      ]
+    },
     tester: {
       name: t.tester,
       icon: TestTube,
