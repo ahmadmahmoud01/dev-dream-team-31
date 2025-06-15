@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Language } from '@/types/chat';
 import { Project } from '@/types/integrations';
-import { Github, GitBranch, Settings, Database, Folder, ExternalLink, Loader2, Server, Shield } from 'lucide-react';
+import { Github, GitBranch, Settings, Database, Folder, ExternalLink, Loader2, Server, Shield, CheckCircle2 } from 'lucide-react';
 
 interface RepositoryListProps {
   language: Language;
@@ -69,23 +69,28 @@ const RepositoryList: React.FC<RepositoryListProps> = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="w-6 h-6 animate-spin" />
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">
+            {language === 'ar' ? 'جاري تحميل المستودعات...' : 'Loading repositories...'}
+          </p>
+        </div>
       </div>
     );
   }
 
   if (repositories.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
-        <Folder className="w-12 h-12 mx-auto mb-4 opacity-50" />
-        <p>
+      <div className="text-center py-12 text-gray-500">
+        <Folder className="w-16 h-16 mx-auto mb-4 opacity-50" />
+        <h4 className="text-lg font-medium mb-2">
           {language === 'ar' 
             ? 'لا توجد مستودعات متاحة' 
             : 'No repositories available'
           }
-        </p>
-        <p className="text-xs mt-2">
+        </h4>
+        <p className="text-sm">
           {language === 'ar' 
             ? 'تأكد من ربط حسابك وتحديد المشاريع في إعدادات التكامل' 
             : 'Make sure to connect your account and select projects in integration settings'
@@ -96,55 +101,60 @@ const RepositoryList: React.FC<RepositoryListProps> = ({
   }
 
   return (
-    <div className="space-y-4 max-h-96 overflow-y-auto">
+    <div className="space-y-6">
       {repositories.map((repo) => (
-        <div key={repo.source} className="space-y-2">
-          <div className="flex items-center space-x-2">
+        <div key={repo.source} className="space-y-3">
+          <div className="flex items-center space-x-2 pb-2 border-b border-gray-100">
             {getSourceIcon(repo.source)}
-            <h4 className="text-sm font-medium">{getSourceName(repo.source)}</h4>
-            <Badge variant="outline" className="text-xs">
-              {repo.projects.length}
+            <h4 className="text-sm font-semibold text-gray-800">{getSourceName(repo.source)}</h4>
+            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+              {repo.projects.length} {language === 'ar' ? 'مشروع' : 'projects'}
             </Badge>
           </div>
           
-          <div className="space-y-2 pl-6">
-            {repo.projects.map((project) => (
-              <Card 
-                key={project.id} 
-                className={`p-3 hover:bg-gray-50 cursor-pointer transition-colors ${
-                  selectedRepository?.project.id === project.id && selectedRepository?.source === repo.source
-                    ? 'bg-blue-50 border-blue-200' 
-                    : ''
-                }`}
-                onClick={() => onSelectRepository(repo.source, project)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm font-medium truncate">
-                        {project.name}
-                      </span>
-                      {project.status && (
-                        <Badge variant="outline" className="text-xs">
-                          {project.status}
-                        </Badge>
+          <div className="space-y-2">
+            {repo.projects.map((project) => {
+              const isSelected = selectedRepository?.project.id === project.id && selectedRepository?.source === repo.source;
+              
+              return (
+                <Card 
+                  key={project.id} 
+                  className={`p-3 cursor-pointer transition-all duration-200 hover:shadow-md ${
+                    isSelected
+                      ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-200' 
+                      : 'hover:bg-gray-50'
+                  }`}
+                  onClick={() => onSelectRepository(repo.source, project)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2 mb-1">
+                        {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-600" />}
+                        <span className={`text-sm font-medium truncate ${isSelected ? 'text-blue-800' : 'text-gray-900'}`}>
+                          {project.name}
+                        </span>
+                        {project.status && (
+                          <Badge variant="outline" className="text-xs">
+                            {project.status}
+                          </Badge>
+                        )}
+                      </div>
+                      {project.key && (
+                        <p className="text-xs text-gray-500 mb-1">
+                          {language === 'ar' ? 'المفتاح:' : 'Key:'} {project.key}
+                        </p>
+                      )}
+                      {project.description && (
+                        <p className="text-xs text-gray-600 line-clamp-2">
+                          {project.description}
+                        </p>
                       )}
                     </div>
-                    {project.key && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {language === 'ar' ? 'المفتاح:' : 'Key:'} {project.key}
-                      </p>
-                    )}
-                    {project.description && (
-                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">
-                        {project.description}
-                      </p>
-                    )}
+                    <ExternalLink className="w-4 h-4 text-gray-400 flex-shrink-0 ml-2" />
                   </div>
-                  <ExternalLink className="w-4 h-4 text-gray-400" />
-                </div>
-              </Card>
-            ))}
+                </Card>
+              );
+            })}
           </div>
         </div>
       ))}
