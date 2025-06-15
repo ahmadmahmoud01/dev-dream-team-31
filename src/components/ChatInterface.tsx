@@ -20,8 +20,6 @@ const ChatInterface = () => {
     setIsLoading,
     language,
     setLanguage,
-    showQuickRepo,
-    setShowQuickRepo,
     messagesEndRef,
     getCurrentPanel,
     setCurrentPanel
@@ -69,7 +67,6 @@ const ChatInterface = () => {
       selectedRole={selectedRole}
       language={language}
       isLoading={isLoading}
-      showQuickRepo={showQuickRepo}
       currentPanel={getCurrentPanel()}
       conversations={conversations}
       currentConversationId={currentConversationId}
@@ -77,7 +74,6 @@ const ChatInterface = () => {
       setInputMessage={setInputMessage}
       setSelectedRole={setSelectedRole}
       setLanguage={setLanguage}
-      setShowQuickRepo={setShowQuickRepo}
       onPanelChange={setCurrentPanel}
       onExampleClick={handlers.handleExampleClick}
       onCreateNewConversation={handlers.handleCreateNewConversation}

@@ -14,7 +14,6 @@ interface ChatLayoutProps {
   selectedRole: AIRole;
   language: Language;
   isLoading: boolean;
-  showQuickRepo: boolean;
   currentPanel: string;
   conversations: ConversationMemory[];
   currentConversationId: string | null;
@@ -24,7 +23,6 @@ interface ChatLayoutProps {
   setInputMessage: (message: string) => void;
   setSelectedRole: (role: AIRole) => void;
   setLanguage: (language: Language) => void;
-  setShowQuickRepo: (show: boolean) => void;
   onPanelChange: (panel: string) => void;
   
   // Handlers
@@ -43,7 +41,6 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   selectedRole,
   language,
   isLoading,
-  showQuickRepo,
   currentPanel,
   conversations,
   currentConversationId,
@@ -51,7 +48,6 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   setInputMessage,
   setSelectedRole,
   setLanguage,
-  setShowQuickRepo,
   onPanelChange,
   onExampleClick,
   onCreateNewConversation,
@@ -84,11 +80,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
         <div className="bg-white border-b border-gray-200 px-4 py-3">
           <div className="flex items-center justify-between">
             <ChatHeader selectedRole={selectedRole} language={language} />
-            <ChatActions
-              language={language}
-              showQuickRepo={showQuickRepo}
-              onToggleQuickRepo={() => setShowQuickRepo(!showQuickRepo)}
-            />
+            <ChatActions language={language} />
           </div>
         </div>
 

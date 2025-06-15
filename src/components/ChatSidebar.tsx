@@ -1,11 +1,13 @@
 
 import React from 'react';
-import { FileText, Save, Trash2, Globe, Zap, Settings, Users, Bot } from 'lucide-react';
+import { FileText, Save, Trash2, Globe, Zap, Settings, Users, Bot, GitBranch } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ConversationMemory, AIRole, Language } from '@/types/chat';
 import { getRoleConfig } from '@/config/roleConfig';
 import { getTranslations } from '@/utils/translations';
+import QuickRepositoryAccess from './QuickRepositoryAccess';
 
 interface ChatSidebarProps {
   selectedRole: AIRole;
@@ -36,6 +38,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   currentPanel,
   onPanelChange,
 }) => {
+  const [showRepositorySelector, setShowRepositorySelector] = React.useState(false);
   const t = getTranslations(language);
   const roleConfig = getRoleConfig(language);
   const currentRole = roleConfig[selectedRole];
@@ -119,6 +122,32 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
             </Button>
           </div>
         </div>
+
+        {/* Repository Selection - Only show when in chat panel */}
+        {currentPanel === 'chat' && (
+          <div className="mb-4">
+            <Popover open={showRepositorySelector} onOpenChange={setShowRepositorySelector}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => setShowRepositorySelector(!showRepositorySelector)}
+                >
+                  <GitBranch className="w-4 h-4 mr-2" />
+                  {language === 'ar' ? 'اختيار المستودع' : 'Select Repository'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-96 p-0" align="start">
+                <QuickRepositoryAccess 
+                  language={language}
+                  isOpen={showRepositorySelector}
+                  onToggle={() => setShowRepositorySelector(!showRepositorySelector)}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
 
         {/* Role Selection Grid - Only show when in chat panel */}
         {currentPanel === 'chat' && (
