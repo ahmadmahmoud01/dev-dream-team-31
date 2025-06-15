@@ -24,7 +24,7 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
       'cost-accountant': 'حساب تكاليف',
       testerDesc: 'خبير في تصميم حالات الاختبار وتحليل الأخطاء وعمليات ضمان الجودة',
       frontendDesc: 'متخصص في تطوير واجهات المستخدم وتقنيات الفرونت إند الحديثة',
-      'business-analystDesc': 'خبير في تحليل متطلبات العمل وتصميم العمليات والحلول التقنية',
+      'business-analystDesc': 'خبير في تحليل متطلبات العمال وتصميم العمليات والحلول التقنية',
       backendDesc: 'متخصص في تطوير خوادم التطبيقات وقواعد البيانات والخدمات الخلفية',
       mobileDesc: 'خبير في تطوير تطبيقات الهواتف الذكية والأجهزة المحمولة',
       devopsDesc: 'متخصص في نشر التطبيقات وإدارة البنية التحتية والأتمتة',
@@ -66,12 +66,34 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
         'كيف أختبر واجهة تسجيل الدخول؟',
         'أكتب لي حالات اختبار لنظام التجارة الإلكترونية',
         'ما هي أفضل ممارسات اختبار الأداء؟',
-        'كيف أتأكد من أمان التطبيق؟'
+        'كيف أتأكد من أمان التطبيق؟',
+        'ما هي طرق اختبار قواعد البيانات؟',
+        'كيف أختبر واجهات برمجة التطبيقات (APIs)؟',
+        'ما هي استراتيجيات الاختبار التلقائي؟',
+        'كيف أكتب تقرير أخطاء فعال؟',
+        'ما هي أدوات اختبار الحمولة المناسبة؟',
+        'كيف أختبر التطبيقات المحمولة؟',
+        'ما هي منهجيات اختبار البرمجيات الحديثة؟',
+        'كيف أضمن جودة تجربة المستخدم؟',
+        'ما هي طرق اختبار التكامل؟',
+        'كيف أنظم بيئة الاختبار؟',
+        'ما هي معايير قبول الاختبارات؟'
       ] : [
         'How do I test a login interface?',
         'Write test cases for an e-commerce system',
         'What are the best performance testing practices?',
-        'How do I ensure application security?'
+        'How do I ensure application security?',
+        'What are the methods for database testing?',
+        'How do I test APIs effectively?',
+        'What are automated testing strategies?',
+        'How do I write an effective bug report?',
+        'What are suitable load testing tools?',
+        'How do I test mobile applications?',
+        'What are modern software testing methodologies?',
+        'How do I ensure user experience quality?',
+        'What are integration testing methods?',
+        'How do I set up a testing environment?',
+        'What are test acceptance criteria?'
       ]
     },
     frontend: {
@@ -83,12 +105,34 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
         'كيف أنشئ مكون React قابل لإعادة الاستخدام؟',
         'ما هي أفضل ممارسات CSS للتصميم المتجاوب؟',
         'كيف أحسن أداء التطبيق في الفرونت إند؟',
-        'اشرح لي مفهوم State Management في React'
+        'اشرح لي مفهوم State Management في React',
+        'كيف أتعامل مع النماذج في React؟',
+        'ما هي أفضل مكتبات UI للمشاريع؟',
+        'كيف أطبق مبادئ التصميم المتجاوب؟',
+        'ما هي طرق تحسين سرعة التحميل؟',
+        'كيف أستخدم TypeScript مع React؟',
+        'ما هي أفضل ممارسات إدارة الحالة؟',
+        'كيف أتعامل مع الطلبات غير المتزامنة؟',
+        'ما هي أدوات بناء التطبيقات الحديثة؟',
+        'كيف أطبق اختبارات الوحدة للمكونات؟',
+        'ما هي معايير إمكانية الوصول في الويب؟',
+        'كيف أستخدم CSS Grid و Flexbox بكفاءة؟'
       ] : [
         'How do I create a reusable React component?',
         'What are the best CSS practices for responsive design?',
         'How do I optimize frontend application performance?',
-        'Explain State Management concepts in React'
+        'Explain State Management concepts in React',
+        'How do I handle forms in React?',
+        'What are the best UI libraries for projects?',
+        'How do I implement responsive design principles?',
+        'What are ways to improve loading speed?',
+        'How do I use TypeScript with React?',
+        'What are state management best practices?',
+        'How do I handle asynchronous requests?',
+        'What are modern application build tools?',
+        'How do I implement unit testing for components?',
+        'What are web accessibility standards?',
+        'How do I use CSS Grid and Flexbox efficiently?'
       ]
     },
     'business-analyst': {
@@ -100,12 +144,34 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
         'كيف أحلل متطلبات العمل للمشروع الجديد؟',
         'ما هي أفضل طرق توثيق العمليات التجارية؟',
         'كيف أصمم تدفق العمل للنظام الجديد؟',
-        'اشرح لي كيفية كتابة وثيقة متطلبات الأعمال'
+        'اشرح لي كيفية كتابة وثيقة متطلبات الأعمال',
+        'ما هي طرق جمع المتطلبات من أصحاب المصلحة؟',
+        'كيف أحلل الفجوات في العمليات الحالية؟',
+        'ما هي أدوات النمذجة التجارية؟',
+        'كيف أقيم جدوى المشروع التجاري؟',
+        'ما هي منهجيات تحليل المخاطر؟',
+        'كيف أكتب قصص المستخدم بطريقة فعالة؟',
+        'ما هي طرق قياس نجاح المشروع؟',
+        'كيف أدير تغيير المتطلبات أثناء المشروع؟',
+        'ما هي أفضل ممارسات التواصل مع العملاء؟',
+        'كيف أحلل العائد على الاستثمار؟',
+        'ما هي طرق تحسين العمليات التجارية؟'
       ] : [
         'How do I analyze business requirements for a new project?',
         'What are the best methods for documenting business processes?',
         'How do I design workflow for a new system?',
-        'Explain how to write a Business Requirements Document'
+        'Explain how to write a Business Requirements Document',
+        'What are methods for gathering requirements from stakeholders?',
+        'How do I analyze gaps in current processes?',
+        'What are business modeling tools?',
+        'How do I assess business project feasibility?',
+        'What are risk analysis methodologies?',
+        'How do I write effective user stories?',
+        'What are ways to measure project success?',
+        'How do I manage requirement changes during the project?',
+        'What are best practices for client communication?',
+        'How do I analyze return on investment?',
+        'What are methods for business process improvement?'
       ]
     },
     backend: {
@@ -117,12 +183,34 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
         'كيف أصمم قاعدة بيانات فعالة؟',
         'ما هي أفضل ممارسات تطوير API؟',
         'كيف أحسن أداء الاستعلامات في قاعدة البيانات؟',
-        'اشرح لي مفهوم المعمارية المجهرية'
+        'اشرح لي مفهوم المعمارية المجهرية',
+        'كيف أؤمن واجهات برمجة التطبيقات؟',
+        'ما هي طرق إدارة جلسات المستخدمين؟',
+        'كيف أتعامل مع معالجة الأخطاء في الخادم؟',
+        'ما هي أفضل ممارسات النسخ الاحتياطي؟',
+        'كيف أطبق مبادئ SOLID في البرمجة؟',
+        'ما هي طرق اختبار واجهات برمجة التطبيقات؟',
+        'كيف أستخدم Redis للتخزين المؤقت؟',
+        'ما هي استراتيجيات توسيع التطبيقات؟',
+        'كيف أدير اتصالات قاعدة البيانات؟',
+        'ما هي أنماط التصميم المفيدة للخادم؟',
+        'كيف أراقب أداء الخادم؟'
       ] : [
         'How do I design an efficient database?',
         'What are the best practices for API development?',
         'How do I optimize database query performance?',
-        'Explain microservices architecture concepts'
+        'Explain microservices architecture concepts',
+        'How do I secure APIs?',
+        'What are methods for managing user sessions?',
+        'How do I handle server error processing?',
+        'What are backup best practices?',
+        'How do I implement SOLID principles in programming?',
+        'What are methods for testing APIs?',
+        'How do I use Redis for caching?',
+        'What are application scaling strategies?',
+        'How do I manage database connections?',
+        'What are useful design patterns for servers?',
+        'How do I monitor server performance?'
       ]
     },
     mobile: {
@@ -134,12 +222,34 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
         'كيف أطور تطبيق محمول باستخدام React Native؟',
         'ما هي أفضل ممارسات تصميم واجهة التطبيقات المحمولة؟',
         'كيف أحسن أداء التطبيق المحمول؟',
-        'اشرح لي الفرق بين التطوير الأصيل والمختلط'
+        'اشرح لي الفرق بين التطوير الأصيل والمختلط',
+        'كيف أتعامل مع التنقل في التطبيقات المحمولة؟',
+        'ما هي طرق تخزين البيانات محلياً؟',
+        'كيف أدمج التطبيق مع خدمات الإشعارات؟',
+        'ما هي أفضل ممارسات أمان التطبيقات المحمولة؟',
+        'كيف أختبر التطبيقات على أجهزة مختلفة؟',
+        'ما هي طرق نشر التطبيقات في المتاجر؟',
+        'كيف أتعامل مع الكاميرا والصور؟',
+        'ما هي أدوات تحليل أداء التطبيقات؟',
+        'كيف أطبق التصميم المادي؟',
+        'ما هي طرق التعامل مع الشبكة؟',
+        'كيف أستخدم الحساسات في الهاتف؟'
       ] : [
         'How do I develop a mobile app using React Native?',
         'What are the best practices for mobile UI design?',
         'How do I optimize mobile app performance?',
-        'Explain the difference between native and hybrid development'
+        'Explain the difference between native and hybrid development',
+        'How do I handle navigation in mobile apps?',
+        'What are methods for local data storage?',
+        'How do I integrate push notifications?',
+        'What are mobile app security best practices?',
+        'How do I test apps on different devices?',
+        'What are methods for publishing apps in stores?',
+        'How do I handle camera and images?',
+        'What are app performance analysis tools?',
+        'How do I implement material design?',
+        'What are methods for network handling?',
+        'How do I use phone sensors?'
       ]
     },
     devops: {
@@ -151,12 +261,34 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
         'كيف أنشئ خط إنتاج CI/CD؟',
         'ما هي أفضل ممارسات إدارة الحاويات؟',
         'كيف أراقب أداء التطبيق في الإنتاج؟',
-        'اشرح لي مفهوم Infrastructure as Code'
+        'اشرح لي مفهوم Infrastructure as Code',
+        'كيف أؤمن البيئة السحابية؟',
+        'ما هي طرق إدارة الأسرار والمفاتيح؟',
+        'كيف أنشئ نظام نسخ احتياطي تلقائي؟',
+        'ما هي أدوات مراقبة الخوادم؟',
+        'كيف أطبق مبادئ Blue-Green Deployment؟',
+        'ما هي استراتيجيات إدارة التكوين؟',
+        'كيف أستخدم Kubernetes بفعالية؟',
+        'ما هي طرق اختبار البنية التحتية؟',
+        'كيف أدير سجلات النظام؟',
+        'ما هي أفضل ممارسات الأمان في DevOps؟',
+        'كيف أحسن أوقات النشر؟'
       ] : [
         'How do I set up a CI/CD pipeline?',
         'What are the best practices for container management?',
         'How do I monitor application performance in production?',
-        'Explain Infrastructure as Code concepts'
+        'Explain Infrastructure as Code concepts',
+        'How do I secure cloud environments?',
+        'What are methods for managing secrets and keys?',
+        'How do I create an automated backup system?',
+        'What are server monitoring tools?',
+        'How do I implement Blue-Green Deployment principles?',
+        'What are configuration management strategies?',
+        'How do I use Kubernetes effectively?',
+        'What are methods for infrastructure testing?',
+        'How do I manage system logs?',
+        'What are DevOps security best practices?',
+        'How do I optimize deployment times?'
       ]
     },
     fullstack: {
@@ -168,12 +300,34 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
         'كيف أبني تطبيق ويب متكامل من الصفر؟',
         'ما هي أفضل التقنيات للتطوير المتكامل؟',
         'كيف أربط الفرونت إند بالباك إند بكفاءة؟',
-        'اشرح لي معمارية التطبيقات الحديثة'
+        'اشرح لي معمارية التطبيقات الحديثة',
+        'كيف أدير حالة التطبيق عبر الطبقات؟',
+        'ما هي طرق المصادقة والتفويض الشاملة؟',
+        'كيف أطبق Real-time في التطبيقات؟',
+        'ما هي أفضل ممارسات SEO للتطبيقات؟',
+        'كيف أختبر التطبيق بشكل شامل؟',
+        'ما هي طرق تحسين أداء التطبيق الكامل؟',
+        'كيف أدير قواعد البيانات المعقدة؟',
+        'ما هي استراتيجيات التخزين المؤقت؟',
+        'كيف أطبق GraphQL في التطبيقات؟',
+        'ما هي طرق التعامل مع ملفات الوسائط؟',
+        'كيف أضمن أمان التطبيق الشامل؟'
       ] : [
         'How do I build a complete web application from scratch?',
         'What are the best technologies for full-stack development?',
         'How do I efficiently connect frontend with backend?',
-        'Explain modern application architecture'
+        'Explain modern application architecture',
+        'How do I manage application state across layers?',
+        'What are comprehensive authentication and authorization methods?',
+        'How do I implement real-time in applications?',
+        'What are SEO best practices for applications?',
+        'How do I test the application comprehensively?',
+        'What are methods for optimizing full application performance?',
+        'How do I manage complex databases?',
+        'What are caching strategies?',
+        'How do I implement GraphQL in applications?',
+        'What are methods for handling media files?',
+        'How do I ensure comprehensive application security?'
       ]
     },
     'project-manager': {
@@ -185,12 +339,34 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
         'كيف أخطط لمشروع تطوير برمجي جديد؟',
         'ما هي أفضل منهجيات إدارة المشاريع؟',
         'كيف أدير فريق التطوير بفعالية؟',
-        'اشرح لي كيفية تتبع التقدم في المشروع'
+        'اشرح لي كيفية تتبع التقدم في المشروع',
+        'كيف أدير المخاطر في المشاريع التقنية؟',
+        'ما هي طرق تقدير الوقت والجهد؟',
+        'كيف أتواصل بفعالية مع أصحاب المصلحة؟',
+        'ما هي أدوات إدارة المشاريع الحديثة؟',
+        'كيف أدير التغييرات في نطاق المشروع؟',
+        'ما هي طرق تحفيز فريق العمل؟',
+        'كيف أضمن جودة التسليمات؟',
+        'ما هي استراتيجيات حل النزاعات؟',
+        'كيف أطبق منهجية Agile بفعالية؟',
+        'ما هي طرق قياس أداء الفريق؟',
+        'كيف أدير الموارد والميزانيات؟'
       ] : [
         'How do I plan a new software development project?',
         'What are the best project management methodologies?',
         'How do I manage a development team effectively?',
-        'Explain how to track project progress'
+        'Explain how to track project progress',
+        'How do I manage risks in technical projects?',
+        'What are methods for estimating time and effort?',
+        'How do I communicate effectively with stakeholders?',
+        'What are modern project management tools?',
+        'How do I manage changes in project scope?',
+        'What are methods for motivating the team?',
+        'How do I ensure quality deliverables?',
+        'What are conflict resolution strategies?',
+        'How do I implement Agile methodology effectively?',
+        'What are methods for measuring team performance?',
+        'How do I manage resources and budgets?'
       ]
     },
     'cost-accountant': {
@@ -202,12 +378,34 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
         'كيف أحسب تكلفة مشروع تطوير البرمجيات؟',
         'ما هي أفضل طرق تحليل التكاليف؟',
         'كيف أعد ميزانية للمشروع التقني؟',
-        'اشرح لي كيفية تتبع التكاليف الفعلية'
+        'اشرح لي كيفية تتبع التكاليف الفعلية',
+        'ما هي طرق تقدير التكاليف المستقبلية؟',
+        'كيف أحلل عائد الاستثمار للمشاريع؟',
+        'ما هي أدوات إدارة التكاليف المالية؟',
+        'كيف أكتب تقارير التكاليف الدورية؟',
+        'ما هي طرق مراقبة الانحرافات في الميزانية؟',
+        'كيف أحسب التكلفة الإجمالية للملكية؟',
+        'ما هي استراتيجيات تقليل التكاليف؟',
+        'كيف أقيم الجدوى الاقتصادية للمشاريع؟',
+        'ما هي طرق تخصيص التكاليف الثابتة؟',
+        'كيف أحلل نقطة التعادل للمنتجات؟',
+        'ما هي معايير قياس الأداء المالي؟'
       ] : [
         'How do I calculate software development project costs?',
         'What are the best cost analysis methods?',
         'How do I prepare a budget for a technical project?',
-        'Explain how to track actual costs'
+        'Explain how to track actual costs',
+        'What are methods for estimating future costs?',
+        'How do I analyze return on investment for projects?',
+        'What are financial cost management tools?',
+        'How do I write periodic cost reports?',
+        'What are methods for monitoring budget variances?',
+        'How do I calculate total cost of ownership?',
+        'What are cost reduction strategies?',
+        'How do I evaluate economic feasibility of projects?',
+        'What are methods for allocating fixed costs?',
+        'How do I analyze break-even point for products?',
+        'What are financial performance measurement criteria?'
       ]
     }
   };
