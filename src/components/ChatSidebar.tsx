@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText, Save, Trash2, Globe } from 'lucide-react';
+import { FileText, Save, Trash2, Globe, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ConversationMemory, AIRole, Language } from '@/types/chat';
@@ -18,6 +18,8 @@ interface ChatSidebarProps {
   onSaveCurrentConversation: () => void;
   onClearAllHistory: () => void;
   onLoadConversation: (conversationId: string) => void;
+  showIntegrations: boolean;
+  setShowIntegrations: (show: boolean) => void;
 }
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({
@@ -31,6 +33,8 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onSaveCurrentConversation,
   onClearAllHistory,
   onLoadConversation,
+  showIntegrations,
+  setShowIntegrations,
 }) => {
   const t = getTranslations(language);
   const roleConfig = getRoleConfig(language);
@@ -73,74 +77,101 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
           </div>
         </div>
 
-        {/* Role Selection Grid */}
-        <div className="mb-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">اختر الموظف</h3>
-          <div className="grid grid-cols-3 gap-2">
-            {Object.entries(roleConfig).map(([key, config]) => {
-              const Icon = config.icon;
-              const isSelected = selectedRole === key;
-              return (
-                <Card
-                  key={key}
-                  className={`p-3 cursor-pointer transition-all hover:shadow-md ${
-                    isSelected 
-                      ? `ring-2 ring-blue-500 ${config.color} text-white` 
-                      : 'hover:bg-gray-50'
-                  }`}
-                  onClick={() => setSelectedRole(key as AIRole)}
-                >
-                  <div className="flex flex-col items-center space-y-1">
-                    <Icon className="w-5 h-5" />
-                    <span className="text-xs font-medium text-center leading-tight">
-                      {config.name}
-                    </span>
+        {/* Navigation Buttons */}
+        <div className="flex gap-2 mb-4">
+          <Button
+            variant={!showIntegrations ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setShowIntegrations(false)}
+            className="flex-1"
+          >
+            {language === 'ar' ? 'المحادثة' : 'Chat'}
+          </Button>
+          <Button
+            variant={showIntegrations ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setShowIntegrations(true)}
+            className="flex-1"
+          >
+            <Zap className="w-4 h-4 mr-1" />
+            {language === 'ar' ? 'التكاملات' : 'Integrations'}
+          </Button>
+        </div>
+
+        {/* Role Selection Grid - Only show when not in integrations */}
+        {!showIntegrations && (
+          <>
+            <div className="mb-4">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">اختر الموظف</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {Object.entries(roleConfig).map(([key, config]) => {
+                  const Icon =  config.icon;
+                  const isSelected = selectedRole === key;
+                  return (
+                    <Card
+                      key={key}
+                      className={`p-3 cursor-pointer transition-all hover:shadow-md ${
+                        isSelected 
+                          ? `ring-2 ring-blue-500 ${config.color} text-white` 
+                          : 'hover:bg-gray-50'
+                      }`}
+                      onClick={() => setSelectedRole(key as AIRole)}
+                    >
+                      <div className="flex flex-col items-center space-y-1">
+                        <Icon className="w-5 h-5" />
+                        <span className="text-xs font-medium text-center leading-tight">
+                          {config.name}
+                        </span>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              <Button size="sm" onClick={onCreateNewConversation} className="flex-1">
+                <FileText className="w-4 h-4 mr-1" />
+                {t.newChat}
+              </Button>
+              <Button size="sm" variant="outline" onClick={onSaveCurrentConversation}>
+                <Save className="w-4 h-4" />
+              </Button>
+              <Button size="sm" variant="outline" onClick={onClearAllHistory}>
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Conversation History - Only show when not in integrations */}
+      {!showIntegrations && (
+        <div className="flex-1 overflow-y-auto p-4">
+          <h3 className="text-sm font-medium text-gray-700 mb-3">المحادثات السابقة</h3>
+          <div className="space-y-2">
+            {conversations.map((conversation) => (
+              <Card
+                key={conversation.id}
+                className={`p-3 cursor-pointer transition-colors hover:bg-gray-50 ${
+                  currentConversationId === conversation.id ? 'ring-2 ring-blue-500' : ''
+                }`}
+                onClick={() => onLoadConversation(conversation.id)}
+              >
+                <div className="flex items-center space-x-2 mb-1">
+                  <div className={`p-1 rounded ${roleConfig[conversation.role].color} text-white`}>
+                    {React.createElement(roleConfig[conversation.role].icon, { className: 'w-3 h-3' })}
                   </div>
-                </Card>
-              );
-            })}
+                  <span className="text-xs font-medium">{roleConfig[conversation.role].name}</span>
+                </div>
+                <p className="text-xs text-gray-600 truncate">{conversation.title}</p>
+                <p className="text-xs text-gray-400">{conversation.lastUpdated.toLocaleDateString('ar')}</p>
+              </Card>
+            ))}
           </div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-2">
-          <Button size="sm" onClick={onCreateNewConversation} className="flex-1">
-            <FileText className="w-4 h-4 mr-1" />
-            {t.newChat}
-          </Button>
-          <Button size="sm" variant="outline" onClick={onSaveCurrentConversation}>
-            <Save className="w-4 h-4" />
-          </Button>
-          <Button size="sm" variant="outline" onClick={onClearAllHistory}>
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Conversation History */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <h3 className="text-sm font-medium text-gray-700 mb-3">المحادثات السابقة</h3>
-        <div className="space-y-2">
-          {conversations.map((conversation) => (
-            <Card
-              key={conversation.id}
-              className={`p-3 cursor-pointer transition-colors hover:bg-gray-50 ${
-                currentConversationId === conversation.id ? 'ring-2 ring-blue-500' : ''
-              }`}
-              onClick={() => onLoadConversation(conversation.id)}
-            >
-              <div className="flex items-center space-x-2 mb-1">
-                <div className={`p-1 rounded ${roleConfig[conversation.role].color} text-white`}>
-                  {React.createElement(roleConfig[conversation.role].icon, { className: 'w-3 h-3' })}
-                </div>
-                <span className="text-xs font-medium">{roleConfig[conversation.role].name}</span>
-              </div>
-              <p className="text-xs text-gray-600 truncate">{conversation.title}</p>
-              <p className="text-xs text-gray-400">{conversation.lastUpdated.toLocaleDateString('ar')}</p>
-            </Card>
-          ))}
-        </div>
-      </div>
+      )}
     </div>
   );
 };

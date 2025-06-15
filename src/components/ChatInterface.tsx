@@ -11,6 +11,7 @@ import ChatInput from './ChatInput';
 import WelcomeScreen from './WelcomeScreen';
 import MessageList from './MessageList';
 import AISettingsModal from './AISettingsModal';
+import IntegrationsPanel from './IntegrationsPanel';
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -18,6 +19,7 @@ const ChatInterface = () => {
   const [selectedRole, setSelectedRole] = useState<AIRole>('tester');
   const [isLoading, setIsLoading] = useState(false);
   const [language, setLanguage] = useState<Language>('ar');
+  const [showIntegrations, setShowIntegrations] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const aiSettings = useAISettings();
@@ -88,7 +90,6 @@ const ChatInterface = () => {
     setIsLoading(true);
 
     try {
-      // استخدام خدمة الذكاء الاصطناعي الجديدة
       const aiResponse = await generateRoleBasedResponse(inputMessage, selectedRole, language, aiSettings);
       
       const aiMessage: Message = {
@@ -135,11 +136,13 @@ const ChatInterface = () => {
         onSaveCurrentConversation={handleSaveCurrentConversation}
         onClearAllHistory={handleClearAllHistory}
         onLoadConversation={handleLoadConversation}
+        showIntegrations={showIntegrations}
+        setShowIntegrations={setShowIntegrations}
       />
 
-      {/* Main Chat Area */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
-        {/* Header with AI Settings */}
+        {/* Header */}
         <div className="bg-white border-b border-gray-200 px-4 py-3">
           <div className="flex items-center justify-between">
             <ChatHeader selectedRole={selectedRole} language={language} />
@@ -147,35 +150,44 @@ const ChatInterface = () => {
           </div>
         </div>
 
-        {/* Messages */}
+        {/* Content */}
         <div className="flex-1 overflow-y-auto p-4">
           <div className="max-w-4xl mx-auto">
-            {messages.length === 0 ? (
-              <WelcomeScreen
-                selectedRole={selectedRole}
-                language={language}
-                onExampleClick={handleExampleClick}
-              />
+            {showIntegrations ? (
+              <IntegrationsPanel language={language} />
             ) : (
-              <MessageList
-                messages={messages}
-                language={language}
-                isLoading={isLoading}
-              />
+              <>
+                {messages.length === 0 ? (
+                  <WelcomeScreen
+                    selectedRole={selectedRole}
+                    language={language}
+                    onExampleClick={handleExampleClick}
+                  />
+                ) : (
+                  <MessageList
+                    messages={messages}
+                    language={language}
+                    isLoading={isLoading}
+                  />
+                )}
+                <div ref={messagesEndRef} />
+              </>
             )}
-            <div ref={messagesEndRef} />
           </div>
         </div>
 
-        <ChatInput
-          inputMessage={inputMessage}
-          setInputMessage={setInputMessage}
-          onSendMessage={handleSendMessage}
-          onKeyPress={handleKeyPress}
-          selectedRole={selectedRole}
-          language={language}
-          isLoading={isLoading}
-        />
+        {/* Chat Input - Only show when not in integrations panel */}
+        {!showIntegrations && (
+          <ChatInput
+            inputMessage={inputMessage}
+            setInputMessage={setInputMessage}
+            onSendMessage={handleSendMessage}
+            onKeyPress={handleKeyPress}
+            selectedRole={selectedRole}
+            language={language}
+            isLoading={isLoading}
+          />
+        )}
       </div>
     </div>
   );
