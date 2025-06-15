@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText, Save, Trash2, Languages } from 'lucide-react';
+import { FileText, Save, Trash2, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ConversationMemory, AIRole, Language } from '@/types/chat';
@@ -51,34 +51,25 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
               <p className="text-xs text-gray-500">{t.subtitle}</p>
             </div>
           </div>
-        </div>
-
-        {/* Language Selection with Icons */}
-        <div className="mb-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">اللغة</h3>
-          <div className="flex gap-2">
-            <Card
-              className={`p-3 cursor-pointer transition-all hover:shadow-md flex-1 ${
-                language === 'ar' ? 'ring-2 ring-blue-500 bg-blue-500 text-white' : 'hover:bg-gray-50'
-              }`}
+          
+          {/* Language Selection - Small Icons at Top */}
+          <div className="flex gap-1">
+            <Button
+              variant={language === 'ar' ? 'default' : 'ghost'}
+              size="sm"
+              className="w-8 h-8 p-0"
               onClick={() => setLanguage('ar')}
             >
-              <div className="flex items-center justify-center space-x-2">
-                <Languages className="w-4 h-4" />
-                <span className="text-sm font-medium">عربي</span>
-              </div>
-            </Card>
-            <Card
-              className={`p-3 cursor-pointer transition-all hover:shadow-md flex-1 ${
-                language === 'en' ? 'ring-2 ring-blue-500 bg-blue-500 text-white' : 'hover:bg-gray-50'
-              }`}
+              <Globe className="w-3 h-3" />
+            </Button>
+            <Button
+              variant={language === 'en' ? 'default' : 'ghost'}
+              size="sm"
+              className="w-8 h-8 p-0"
               onClick={() => setLanguage('en')}
             >
-              <div className="flex items-center justify-center space-x-2">
-                <Languages className="w-4 h-4" />
-                <span className="text-sm font-medium">EN</span>
-              </div>
-            </Card>
+              EN
+            </Button>
           </div>
         </div>
 

@@ -206,7 +206,7 @@ Would you like me to help with specific interface design or review app code?`,
 Would you like me to help with CI/CD setup or infrastructure optimization?`,
 
     fullstack: language === 'ar' ?
-      `كمطور ويب متكامل، سأساعدك في: ${input}
+      `كمطور ويب متكام،،، سأساعدك في: ${input}
 
 **تحليل التطوير المتكامل:**
 - **المعمارية الشاملة**: تصميم نظام متكامل من الفرونت إند للباك إند
@@ -237,7 +237,75 @@ Would you like me to help with CI/CD setup or infrastructure optimization?`,
 4. Database and API development
 5. Integration testing and deployment
 
-Would you like me to help with comprehensive architecture design or review integration between layers?`
+Would you like me to help with comprehensive architecture design or review integration between layers?`,
+
+    'project-manager': language === 'ar' ?
+      `كمدير مشروع، سأساعدك في: ${input}
+
+**تحليل إدارة المشروع:**
+- **التخطيط الاستراتيجي**: وضع خطة شاملة للمشروع مع المراحل الزمنية
+- **إدارة الفريق**: تنسيق وقيادة فرق العمل المتعددة
+- **مراقبة التقدم**: تتبع الإنجازات والمشاكل والمخاطر
+- **التواصل**: ضمان التواصل الفعال بين جميع أصحاب المصلحة
+
+**منهجية إدارة المشروع:**
+1. تحديد نطاق المشروع والأهداف
+2. تخطيط الموارد والجدول الزمني
+3. تشكيل وقيادة الفريق
+4. مراقبة التنفيذ والتحكم في الجودة
+5. إدارة المخاطر والتغييرات
+
+هل تريد مني مساعدتك في وضع خطة مشروع أو حل مشكلة إدارية محددة؟` :
+      `As a Project Manager, I'll help you with: ${input}
+
+**Project Management Analysis:**
+- **Strategic Planning**: Comprehensive project plan with timelines
+- **Team Management**: Coordination and leadership of multiple teams
+- **Progress Monitoring**: Tracking achievements, issues, and risks
+- **Communication**: Ensuring effective communication among all stakeholders
+
+**Project Management Methodology:**
+1. Define project scope and objectives
+2. Resource and timeline planning
+3. Team formation and leadership
+4. Implementation monitoring and quality control
+5. Risk and change management
+
+Would you like me to help with creating a project plan or solving a specific management issue?`,
+
+    'cost-accountant': language === 'ar' ?
+      `كحساب تكاليف، سأساعدك في: ${input}
+
+**تحليل التكاليف المالية:**
+- **تقدير التكاليف**: حساب دقيق لتكاليف المشروع التقني
+- **تحليل الميزانية**: مراجعة وتحليل الميزانيات المخططة والفعلية
+- **تتبع الإنفاق**: مراقبة التكاليف الجارية والانحرافات
+- **التقارير المالية**: إعداد تقارير مالية مفصلة للإدارة
+
+**استراتيجية إدارة التكاليف:**
+1. تحليل هيكل التكاليف للمشروع
+2. وضع ميزانية تفصيلية ومرنة
+3. تتبع التكاليف الفعلية مقابل المخططة
+4. تحليل الانحرافات والأسباب
+5. تقديم توصيات لتحسين الكفاءة المالية
+
+هل تريد مني مساعدتك في إعداد ميزانية مشروع أو تحليل تكاليف محددة؟` :
+      `As a Cost Accountant, I'll help you with: ${input}
+
+**Financial Cost Analysis:**
+- **Cost Estimation**: Accurate calculation of technical project costs
+- **Budget Analysis**: Review and analysis of planned vs actual budgets
+- **Expense Tracking**: Monitoring ongoing costs and variances
+- **Financial Reporting**: Preparing detailed financial reports for management
+
+**Cost Management Strategy:**
+1. Project cost structure analysis
+2. Detailed and flexible budget preparation
+3. Tracking actual vs planned costs
+4. Variance analysis and root causes
+5. Recommendations for improving financial efficiency
+
+Would you like me to help with project budget preparation or analyzing specific costs?`
   };
 
   return responses[role];

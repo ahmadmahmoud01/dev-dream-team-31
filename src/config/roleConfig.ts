@@ -1,5 +1,5 @@
 
-import { TestTube, Code, BarChart3, Server, Smartphone, Settings, Database } from 'lucide-react';
+import { TestTube, Code, BarChart3, Server, Smartphone, Settings, Database, Users, Calculator } from 'lucide-react';
 import { AIRole, Language } from '@/types/chat';
 
 export interface RoleConfig {
@@ -20,6 +20,8 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
       mobile: 'مطور التطبيقات المحمولة',
       devops: 'مهندس DevOps',
       fullstack: 'مطور الويب المتكامل',
+      'project-manager': 'مدير مشروع',
+      'cost-accountant': 'حساب تكاليف',
       testerDesc: 'خبير في تصميم حالات الاختبار وتحليل الأخطاء وعمليات ضمان الجودة',
       frontendDesc: 'متخصص في تطوير واجهات المستخدم وتقنيات الفرونت إند الحديثة',
       'business-analystDesc': 'خبير في تحليل متطلبات العمل وتصميم العمليات والحلول التقنية',
@@ -27,6 +29,8 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
       mobileDesc: 'خبير في تطوير تطبيقات الهواتف الذكية والأجهزة المحمولة',
       devopsDesc: 'متخصص في نشر التطبيقات وإدارة البنية التحتية والأتمتة',
       fullstackDesc: 'مطور شامل متخصص في الفرونت إند والباك إند وقواعد البيانات',
+      'project-managerDesc': 'خبير في إدارة المشاريع والتخطيط والمتابعة وتنسيق الفرق',
+      'cost-accountantDesc': 'متخصص في تحليل التكاليف وإعداد الميزانيات والتقارير المالية',
     },
     en: {
       tester: 'Software Tester',
@@ -36,6 +40,8 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
       mobile: 'Mobile Developer',
       devops: 'DevOps Engineer',
       fullstack: 'Full Stack Developer',
+      'project-manager': 'Project Manager',
+      'cost-accountant': 'Cost Accountant',
       testerDesc: 'Expert in test case design, bug analysis, and QA processes',
       frontendDesc: 'Specialist in UI/UX development and modern frontend technologies',
       'business-analystDesc': 'Expert in business requirements analysis and process design',
@@ -43,6 +49,8 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
       mobileDesc: 'Expert in mobile app development for iOS and Android platforms',
       devopsDesc: 'Specialist in deployment, infrastructure management, and automation',
       fullstackDesc: 'Comprehensive developer skilled in frontend, backend, and databases',
+      'project-managerDesc': 'Expert in project management, planning, monitoring, and team coordination',
+      'cost-accountantDesc': 'Specialist in cost analysis, budget preparation, and financial reporting',
     }
   };
 
@@ -166,6 +174,40 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
         'What are the best technologies for full-stack development?',
         'How do I efficiently connect frontend with backend?',
         'Explain modern application architecture'
+      ]
+    },
+    'project-manager': {
+      name: t['project-manager'],
+      icon: Users,
+      color: 'bg-red-500',
+      description: t['project-managerDesc'],
+      examples: language === 'ar' ? [
+        'كيف أخطط لمشروع تطوير برمجي جديد؟',
+        'ما هي أفضل منهجيات إدارة المشاريع؟',
+        'كيف أدير فريق التطوير بفعالية؟',
+        'اشرح لي كيفية تتبع التقدم في المشروع'
+      ] : [
+        'How do I plan a new software development project?',
+        'What are the best project management methodologies?',
+        'How do I manage a development team effectively?',
+        'Explain how to track project progress'
+      ]
+    },
+    'cost-accountant': {
+      name: t['cost-accountant'],
+      icon: Calculator,
+      color: 'bg-yellow-600',
+      description: t['cost-accountantDesc'],
+      examples: language === 'ar' ? [
+        'كيف أحسب تكلفة مشروع تطوير البرمجيات؟',
+        'ما هي أفضل طرق تحليل التكاليف؟',
+        'كيف أعد ميزانية للمشروع التقني؟',
+        'اشرح لي كيفية تتبع التكاليف الفعلية'
+      ] : [
+        'How do I calculate software development project costs?',
+        'What are the best cost analysis methods?',
+        'How do I prepare a budget for a technical project?',
+        'Explain how to track actual costs'
       ]
     }
   };
