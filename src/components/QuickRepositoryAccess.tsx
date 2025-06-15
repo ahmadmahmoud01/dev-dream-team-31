@@ -5,10 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Language } from '@/types/chat';
 import { Search, ExternalLink, Loader2, Settings } from 'lucide-react';
 import { useRepositoryAccess } from '@/hooks/useRepositoryAccess';
+import { useRepositoryConnection } from '@/hooks/useRepositoryConnection';
 import ConnectionTypeSelector from './ConnectionTypeSelector';
 import CustomProviderConfig from './CustomProviderConfig';
 import RepositoryList from './RepositoryList';
-import SelectedRepositoryDisplay from './SelectedRepositoryDisplay';
+import RepositoryConnectionStatus from './RepositoryConnectionStatus';
 
 interface QuickRepositoryAccessProps {
   language: Language;
@@ -40,6 +41,25 @@ const QuickRepositoryAccess: React.FC<QuickRepositoryAccessProps> = ({
     fetchRepositories
   } = useRepositoryAccess();
 
+  const {
+    status: connectionStatus,
+    connect,
+    disconnect,
+    refresh,
+    setSelectedRepository: setConnectionRepository
+  } = useRepositoryConnection();
+
+  // تحديث حالة الاتصال عند تغيير المستودع المحدد
+  React.useEffect(() => {
+    setConnectionRepository(selectedRepository);
+  }, [selectedRepository, setConnectionRepository]);
+
+  const handleConnect = async () => {
+    if (selectedRepository) {
+      await connect(selectedRepository);
+    }
+  };
+
   if (showCustomConfig) {
     return (
       <div className="w-full bg-white rounded-lg shadow-lg border border-gray-200">
@@ -69,7 +89,7 @@ const QuickRepositoryAccess: React.FC<QuickRepositoryAccessProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 pb-3">
           <h3 className="text-lg font-semibold text-gray-900">
-            {language === 'ar' ? 'اختيار المستودع' : 'Repository Selection'}
+            {language === 'ar' ? 'ربط المستودع' : 'Repository Connection'}
           </h3>
           <div className="flex items-center space-x-2">
             <Button
@@ -96,11 +116,21 @@ const QuickRepositoryAccess: React.FC<QuickRepositoryAccessProps> = ({
           </div>
         </div>
 
+        {/* Connection Status */}
+        <RepositoryConnectionStatus
+          language={language}
+          selectedRepository={selectedRepository}
+          connectionStatus={connectionStatus}
+          onConnect={handleConnect}
+          onDisconnect={disconnect}
+          onRefresh={refresh}
+        />
+
         {/* Current Connection Type Display */}
         {selectedConnectionType && (
           <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
             <span className="text-sm text-gray-600">
-              {language === 'ar' ? 'متصل بـ:' : 'Connected to:'} 
+              {language === 'ar' ? 'نوع الاتصال:' : 'Connection Type:'} 
               <span className="font-medium ml-1">
                 {selectedConnectionType === 'custom' 
                   ? (customProviders[0]?.name || (language === 'ar' ? 'مزود مخصص' : 'Custom Provider'))
@@ -109,14 +139,6 @@ const QuickRepositoryAccess: React.FC<QuickRepositoryAccessProps> = ({
               </span>
             </span>
           </div>
-        )}
-
-        {/* Selected Repository Display */}
-        {selectedRepository && (
-          <SelectedRepositoryDisplay
-            language={language}
-            selectedRepository={selectedRepository}
-          />
         )}
 
         {/* Search Input */}

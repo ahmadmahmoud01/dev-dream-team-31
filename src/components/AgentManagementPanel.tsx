@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Language, AIRole } from '@/types/chat';
 import { getRoleConfig } from '@/config/roleConfig';
 import { useAgentManagement } from '@/hooks/useAgentManagement';
-import { Bot, Plus, Play, Pause, Trash2, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Bot, Plus, Play, Pause, Trash2, CheckCircle, Clock, AlertCircle, Target } from 'lucide-react';
+import ProductManagerTaskTemplates from './ProductManagerTaskTemplates';
 
 interface AgentManagementPanelProps {
   language: Language;
@@ -56,6 +56,16 @@ const AgentManagementPanel: React.FC<AgentManagementPanelProps> = ({ language })
       setNewTaskTitle('');
       setNewTaskDescription('');
       setShowCreateTask(false);
+    }
+  };
+
+  const handleAssignTaskTemplate = (template: any) => {
+    const taskId = createTask(template.title, template.description, template.priority);
+    const suggestedAgent = getAvailableAgents().find(agent => agent.role === template.suggestedAgent);
+    
+    if (suggestedAgent && taskId) {
+      assignTask(taskId, suggestedAgent.id);
+      console.log(`Task "${template.title}" assigned to agent "${suggestedAgent.name}"`);
     }
   };
 
@@ -136,8 +146,12 @@ const AgentManagementPanel: React.FC<AgentManagementPanelProps> = ({ language })
         </div>
       </Card>
 
-      <Tabs defaultValue="agents" className="space-y-4">
+      <Tabs defaultValue="templates" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="templates">
+            <Target className="w-4 h-4 mr-1" />
+            {language === 'ar' ? 'قوالب المهام' : 'Task Templates'}
+          </TabsTrigger>
           <TabsTrigger value="agents">
             {language === 'ar' ? 'الوكلاء' : 'Agents'}
           </TabsTrigger>
@@ -148,6 +162,14 @@ const AgentManagementPanel: React.FC<AgentManagementPanelProps> = ({ language })
             {language === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="templates" className="space-y-4">
+          <ProductManagerTaskTemplates
+            language={language}
+            onAssignTask={handleAssignTaskTemplate}
+            availableAgents={getAvailableAgents()}
+          />
+        </TabsContent>
 
         <TabsContent value="agents" className="space-y-4">
           <div className="flex justify-between items-center">
