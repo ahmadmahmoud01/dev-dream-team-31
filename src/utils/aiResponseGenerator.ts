@@ -1,7 +1,10 @@
 
 import { Language, AIRole } from '@/types/chat';
+import { AIService } from '@/services/aiService';
+import { useAISettings } from '@/hooks/useAISettings';
 
-export const generateRoleBasedResponse = (input: string, role: AIRole, language: Language): string => {
+// الاحتفاظ بالاستجابات التقليدية كـ fallback
+const getFallbackResponse = (input: string, role: AIRole, language: Language): string => {
   const responses = {
     tester: language === 'ar' ? 
       `كمختبر برمجيات، سأساعدك في: ${input}
@@ -309,4 +312,25 @@ Would you like me to help with project budget preparation or analyzing specific 
   };
 
   return responses[role];
+};
+
+export const generateRoleBasedResponse = async (
+  input: string, 
+  role: AIRole, 
+  language: Language, 
+  aiSettings?: any
+): Promise<string> => {
+  // إذا كانت إعدادات الذكاء الاصطناعي متوفرة ومكونة بشكل صحيح
+  if (aiSettings && aiSettings.isConfigured()) {
+    try {
+      const aiService = new AIService(aiSettings.settings);
+      return await aiService.generateResponse(input, role, language);
+    } catch (error) {
+      console.error('AI Service Error:', error);
+      // العودة للاستجابة التقليدية في حالة الخطأ
+    }
+  }
+  
+  // استخدام الاستجابة التقليدية كـ fallback
+  return getFallbackResponse(input, role, language);
 };

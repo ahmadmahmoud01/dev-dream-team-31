@@ -4,11 +4,13 @@ import { Message, AIRole, Language } from '@/types/chat';
 import { getRoleConfig } from '@/config/roleConfig';
 import { generateRoleBasedResponse } from '@/utils/aiResponseGenerator';
 import { useConversationManager } from '@/hooks/useConversationManager';
+import { useAISettings } from '@/hooks/useAISettings';
 import ChatSidebar from './ChatSidebar';
 import ChatHeader from './ChatHeader';
 import ChatInput from './ChatInput';
 import WelcomeScreen from './WelcomeScreen';
 import MessageList from './MessageList';
+import AISettingsModal from './AISettingsModal';
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -17,6 +19,8 @@ const ChatInterface = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [language, setLanguage] = useState<Language>('ar');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const aiSettings = useAISettings();
 
   const {
     conversations,
@@ -83,9 +87,10 @@ const ChatInterface = () => {
     setInputMessage('');
     setIsLoading(true);
 
-    // Simulate AI response based on role
-    setTimeout(() => {
-      const aiResponse = generateRoleBasedResponse(inputMessage, selectedRole, language);
+    try {
+      // استخدام خدمة الذكاء الاصطناعي الجديدة
+      const aiResponse = await generateRoleBasedResponse(inputMessage, selectedRole, language, aiSettings);
+      
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: aiResponse,
@@ -95,8 +100,19 @@ const ChatInterface = () => {
       };
 
       setMessages(prev => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Error generating response:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: language === 'ar' ? 'عذراً، حدث خطأ في توليد الاستجابة.' : 'Sorry, an error occurred while generating the response.',
+        sender: 'ai',
+        timestamp: new Date(),
+        aiRole: selectedRole
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -123,7 +139,13 @@ const ChatInterface = () => {
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
-        <ChatHeader selectedRole={selectedRole} language={language} />
+        {/* Header with AI Settings */}
+        <div className="bg-white border-b border-gray-200 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <ChatHeader selectedRole={selectedRole} language={language} />
+            <AISettingsModal language={language} />
+          </div>
+        </div>
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4">
