@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText, Save, Trash2, Globe, Zap } from 'lucide-react';
+import { FileText, Save, Trash2, Globe, Zap, Settings, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ConversationMemory, AIRole, Language } from '@/types/chat';
@@ -18,8 +18,8 @@ interface ChatSidebarProps {
   onSaveCurrentConversation: () => void;
   onClearAllHistory: () => void;
   onLoadConversation: (conversationId: string) => void;
-  showIntegrations: boolean;
-  setShowIntegrations: (show: boolean) => void;
+  currentPanel: string;
+  onPanelChange: (panel: string) => void;
 }
 
 const ChatSidebar: React.FC<ChatSidebarProps> = ({
@@ -33,8 +33,8 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   onSaveCurrentConversation,
   onClearAllHistory,
   onLoadConversation,
-  showIntegrations,
-  setShowIntegrations,
+  currentPanel,
+  onPanelChange,
 }) => {
   const t = getTranslations(language);
   const roleConfig = getRoleConfig(language);
@@ -78,34 +78,45 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
         </div>
 
         {/* Navigation Buttons */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-col gap-2 mb-4">
+          <div className="flex gap-2">
+            <Button
+              variant={currentPanel === 'chat' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onPanelChange('chat')}
+              className="flex-1"
+            >
+              {language === 'ar' ? 'المحادثة' : 'Chat'}
+            </Button>
+            <Button
+              variant={currentPanel === 'integrations' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onPanelChange('integrations')}
+              className="flex-1"
+            >
+              <Zap className="w-4 h-4 mr-1" />
+              {language === 'ar' ? 'التكاملات' : 'Integrations'}
+            </Button>
+          </div>
           <Button
-            variant={!showIntegrations ? 'default' : 'outline'}
+            variant={currentPanel === 'roles' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setShowIntegrations(false)}
-            className="flex-1"
+            onClick={() => onPanelChange('roles')}
+            className="w-full"
           >
-            {language === 'ar' ? 'المحادثة' : 'Chat'}
-          </Button>
-          <Button
-            variant={showIntegrations ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setShowIntegrations(true)}
-            className="flex-1"
-          >
-            <Zap className="w-4 h-4 mr-1" />
-            {language === 'ar' ? 'التكاملات' : 'Integrations'}
+            <Users className="w-4 h-4 mr-1" />
+            {language === 'ar' ? 'إدارة الموظفين' : 'Role Management'}
           </Button>
         </div>
 
-        {/* Role Selection Grid - Only show when not in integrations */}
-        {!showIntegrations && (
+        {/* Role Selection Grid - Only show when in chat panel */}
+        {currentPanel === 'chat' && (
           <>
             <div className="mb-4">
               <h3 className="text-sm font-medium text-gray-700 mb-3">اختر الموظف</h3>
               <div className="grid grid-cols-3 gap-2">
                 {Object.entries(roleConfig).map(([key, config]) => {
-                  const Icon =  config.icon;
+                  const Icon = config.icon;
                   const isSelected = selectedRole === key;
                   return (
                     <Card
@@ -146,8 +157,8 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
         )}
       </div>
 
-      {/* Conversation History - Only show when not in integrations */}
-      {!showIntegrations && (
+      {/* Conversation History - Only show when in chat panel */}
+      {currentPanel === 'chat' && (
         <div className="flex-1 overflow-y-auto p-4">
           <h3 className="text-sm font-medium text-gray-700 mb-3">المحادثات السابقة</h3>
           <div className="space-y-2">

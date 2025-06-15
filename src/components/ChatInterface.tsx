@@ -12,6 +12,8 @@ import WelcomeScreen from './WelcomeScreen';
 import MessageList from './MessageList';
 import AISettingsModal from './AISettingsModal';
 import IntegrationsPanel from './IntegrationsPanel';
+import RoleManagementPanel from './RoleManagementPanel';
+import QuickRepositoryAccess from './QuickRepositoryAccess';
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -20,6 +22,8 @@ const ChatInterface = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [language, setLanguage] = useState<Language>('ar');
   const [showIntegrations, setShowIntegrations] = useState(false);
+  const [showRoleManagement, setShowRoleManagement] = useState(false);
+  const [showQuickRepo, setShowQuickRepo] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const aiSettings = useAISettings();
@@ -130,6 +134,17 @@ const ChatInterface = () => {
     }
   };
 
+  const getCurrentPanel = () => {
+    if (showIntegrations) return 'integrations';
+    if (showRoleManagement) return 'roles';
+    return 'chat';
+  };
+
+  const setCurrentPanel = (panel: string) => {
+    setShowIntegrations(panel === 'integrations');
+    setShowRoleManagement(panel === 'roles');
+  };
+
   return (
     <div className={`flex h-screen bg-gray-50 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
       <ChatSidebar
@@ -143,8 +158,8 @@ const ChatInterface = () => {
         onSaveCurrentConversation={handleSaveCurrentConversation}
         onClearAllHistory={handleClearAllHistory}
         onLoadConversation={handleLoadConversation}
-        showIntegrations={showIntegrations}
-        setShowIntegrations={setShowIntegrations}
+        currentPanel={getCurrentPanel()}
+        onPanelChange={setCurrentPanel}
       />
 
       {/* Main Content Area */}
@@ -153,7 +168,14 @@ const ChatInterface = () => {
         <div className="bg-white border-b border-gray-200 px-4 py-3">
           <div className="flex items-center justify-between">
             <ChatHeader selectedRole={selectedRole} language={language} />
-            <AISettingsModal language={language} />
+            <div className="flex items-center space-x-2">
+              <QuickRepositoryAccess 
+                language={language}
+                isOpen={showQuickRepo}
+                onToggle={() => setShowQuickRepo(!showQuickRepo)}
+              />
+              <AISettingsModal language={language} />
+            </div>
           </div>
         </div>
 
@@ -162,6 +184,8 @@ const ChatInterface = () => {
           <div className="max-w-4xl mx-auto">
             {showIntegrations ? (
               <IntegrationsPanel language={language} />
+            ) : showRoleManagement ? (
+              <RoleManagementPanel language={language} />
             ) : (
               <>
                 {messages.length === 0 ? (
@@ -183,8 +207,8 @@ const ChatInterface = () => {
           </div>
         </div>
 
-        {/* Chat Input - Only show when not in integrations panel */}
-        {!showIntegrations && (
+        {/* Chat Input - Only show when in chat panel */}
+        {getCurrentPanel() === 'chat' && (
           <ChatInput
             inputMessage={inputMessage}
             setInputMessage={setInputMessage}
