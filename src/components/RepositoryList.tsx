@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Language } from '@/types/chat';
 import { Project } from '@/types/integrations';
-import { Github, GitBranch, Settings, Database, Folder, ExternalLink, Loader2 } from 'lucide-react';
+import { Github, GitBranch, Settings, Database, Folder, ExternalLink, Loader2, Server, Shield } from 'lucide-react';
 
 interface RepositoryListProps {
   language: Language;
@@ -27,6 +27,10 @@ const RepositoryList: React.FC<RepositoryListProps> = ({
         return <Github className="w-4 h-4" />;
       case 'devops':
         return <Settings className="w-4 h-4" />;
+      case 'devops-user':
+        return <Server className="w-4 h-4" />;
+      case 'security':
+        return <Shield className="w-4 h-4" />;
       case 'bitbucket':
         return <GitBranch className="w-4 h-4" />;
       case 'jira':
@@ -44,6 +48,8 @@ const RepositoryList: React.FC<RepositoryListProps> = ({
         'jira': 'Jira',
         'clickup': 'ClickUp',
         'devops': 'Azure DevOps',
+        'devops-user': 'مستخدم DevOps',
+        'security': 'مستخدم الأمان',
         'bitbucket': 'Bitbucket',
         'axure': 'Axure'
       },
@@ -52,6 +58,8 @@ const RepositoryList: React.FC<RepositoryListProps> = ({
         'jira': 'Jira',
         'clickup': 'ClickUp',
         'devops': 'Azure DevOps',
+        'devops-user': 'DevOps User',
+        'security': 'Security User',
         'bitbucket': 'Bitbucket',
         'axure': 'Axure'
       }

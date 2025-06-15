@@ -4,7 +4,7 @@ import { useIntegrations } from '@/hooks/useIntegrations';
 import { IntegrationService } from '@/services/integrationService';
 import { Project } from '@/types/integrations';
 
-type ConnectionType = 'github' | 'bitbucket' | 'devops';
+type ConnectionType = 'github' | 'bitbucket' | 'devops' | 'devops-user' | 'security';
 
 export const useRepositoryAccess = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,7 +27,9 @@ export const useRepositoryAccess = () => {
       const sourceMapping = {
         'github': 'bitbucket', // Using bitbucket as placeholder for GitHub
         'bitbucket': 'bitbucket',
-        'devops': 'devops'
+        'devops': 'devops',
+        'devops-user': 'devops', // DevOps users also use devops integration
+        'security': 'devops' // Security users can access devops for now
       };
 
       const source = sourceMapping[selectedConnectionType];

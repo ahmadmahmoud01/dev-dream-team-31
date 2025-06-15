@@ -2,9 +2,9 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Language } from '@/types/chat';
-import { Github, GitBranch, Settings, ExternalLink } from 'lucide-react';
+import { Github, GitBranch, Settings, ExternalLink, Shield, Server } from 'lucide-react';
 
-type ConnectionType = 'github' | 'bitbucket' | 'devops';
+type ConnectionType = 'github' | 'bitbucket' | 'devops' | 'devops-user' | 'security';
 
 interface ConnectionTypeSelectorProps {
   language: Language;
@@ -36,6 +36,20 @@ const ConnectionTypeSelector: React.FC<ConnectionTypeSelectorProps> = ({
       icon: <Settings className="w-5 h-5" />,
       description: language === 'ar' ? 'ربط مع Azure DevOps' : 'Connect to Azure DevOps',
       color: 'bg-indigo-500'
+    },
+    {
+      id: 'devops-user' as ConnectionType,
+      name: language === 'ar' ? 'مستخدم DevOps' : 'DevOps User',
+      icon: <Server className="w-5 h-5" />,
+      description: language === 'ar' ? 'ربط كمستخدم DevOps' : 'Connect as DevOps User',
+      color: 'bg-purple-600'
+    },
+    {
+      id: 'security' as ConnectionType,
+      name: language === 'ar' ? 'مستخدم الأمان' : 'Security User',
+      icon: <Shield className="w-5 h-5" />,
+      description: language === 'ar' ? 'ربط كمستخدم أمان' : 'Connect as Security User',
+      color: 'bg-red-600'
     }
   ];
 

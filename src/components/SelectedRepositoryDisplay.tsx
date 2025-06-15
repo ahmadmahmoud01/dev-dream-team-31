@@ -2,7 +2,7 @@
 import React from 'react';
 import { Language } from '@/types/chat';
 import { Project } from '@/types/integrations';
-import { Github, GitBranch, Settings, Database, Folder } from 'lucide-react';
+import { Github, GitBranch, Settings, Database, Folder, Server, Shield } from 'lucide-react';
 
 interface SelectedRepositoryDisplayProps {
   language: Language;
@@ -19,6 +19,10 @@ const SelectedRepositoryDisplay: React.FC<SelectedRepositoryDisplayProps> = ({
         return <Github className="w-4 h-4" />;
       case 'devops':
         return <Settings className="w-4 h-4" />;
+      case 'devops-user':
+        return <Server className="w-4 h-4" />;
+      case 'security':
+        return <Shield className="w-4 h-4" />;
       case 'bitbucket':
         return <GitBranch className="w-4 h-4" />;
       case 'jira':
@@ -36,6 +40,8 @@ const SelectedRepositoryDisplay: React.FC<SelectedRepositoryDisplayProps> = ({
         'jira': 'Jira',
         'clickup': 'ClickUp',
         'devops': 'Azure DevOps',
+        'devops-user': 'مستخدم DevOps',
+        'security': 'مستخدم الأمان',
         'bitbucket': 'Bitbucket',
         'axure': 'Axure'
       },
@@ -44,6 +50,8 @@ const SelectedRepositoryDisplay: React.FC<SelectedRepositoryDisplayProps> = ({
         'jira': 'Jira',
         'clickup': 'ClickUp',
         'devops': 'Azure DevOps',
+        'devops-user': 'DevOps User',
+        'security': 'Security User',
         'bitbucket': 'Bitbucket',
         'axure': 'Axure'
       }
