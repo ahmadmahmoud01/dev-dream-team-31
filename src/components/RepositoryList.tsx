@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -51,7 +50,7 @@ const RepositoryList: React.FC<RepositoryListProps> = ({
         'clickup': 'ClickUp',
         'devops': 'Azure DevOps',
         'devops-user': 'مستخدم DevOps',
-        'security':ـد'مستخدم الأمان',
+        'security': 'مستخدم الأمان',
         'bitbucket': 'Bitbucket',
         'axure': 'Axure',
         'custom': 'مزود مخصص'
