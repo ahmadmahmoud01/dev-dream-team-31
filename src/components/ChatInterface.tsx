@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Upload, Download, Code, TestTube, FileText, User } from 'lucide-react';
+import { Send, Upload, Download, Code, TestTube, FileText, User, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -36,20 +36,42 @@ const ChatInterface = () => {
       name: 'Software Tester',
       icon: TestTube,
       color: 'bg-emerald-500',
-      description: 'Expert in test case design, bug analysis, and QA processes'
+      description: 'Expert in test case design, bug analysis, and QA processes',
+      examples: [
+        'كيف أختبر واجهة تسجيل الدخول؟',
+        'أكتب لي حالات اختبار لنظام التجارة الإلكترونية',
+        'ما هي أفضل ممارسات اختبار الأداء؟',
+        'كيف أتأكد من أمان التطبيق؟'
+      ]
     },
     analyst: {
       name: 'BRD Analyst',
       icon: FileText,
       color: 'bg-blue-500',
-      description: 'Specialist in requirements analysis and business documentation'
+      description: 'Specialist in requirements analysis and business documentation',
+      examples: [
+        'اكتب لي وثيقة متطلبات لنظام إدارة المستودعات',
+        'حلل متطلبات العمل لتطبيق التوصيل',
+        'ما هي الخطوات لكتابة BRD فعال؟',
+        'كيف أحدد أصحاب المصلحة في المشروع؟'
+      ]
     },
     engineer: {
       name: 'Software Engineer',
       icon: Code,
       color: 'bg-purple-500',
-      description: 'Full-stack developer with expertise in architecture and coding'
+      description: 'Full-stack developer with expertise in architecture and coding',
+      examples: [
+        'اكتب لي API لإدارة المستخدمين بـ Node.js',
+        'كيف أصمم قاعدة بيانات لنظام التجارة الإلكترونية؟',
+        'ما هي أفضل ممارسات React.js؟',
+        'راجع هذا الكود وحسن الأداء'
+      ]
     }
+  };
+
+  const handleExampleClick = (example: string) => {
+    setInputMessage(example);
   };
 
   const handleSendMessage = async () => {
@@ -214,16 +236,36 @@ Would you like me to dive deeper into the technical implementation or review spe
       <div className="flex-1 overflow-y-auto p-4">
         <div className="max-w-4xl mx-auto space-y-4">
           {messages.length === 0 && (
-            <div className="text-center py-12">
+            <div className="text-center py-8">
               <div className={`inline-flex p-4 rounded-full ${currentRole.color} text-white mb-4`}>
                 <RoleIcon className="w-8 h-8" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 Hello! I'm your AI {currentRole.name}
               </h3>
-              <p className="text-gray-600 mb-4">{currentRole.description}</p>
+              <p className="text-gray-600 mb-6">{currentRole.description}</p>
+              
+              {/* Examples Section */}
+              <div className="bg-gray-50 rounded-lg p-6 mb-4">
+                <div className="flex items-center justify-center space-x-2 mb-4">
+                  <Lightbulb className="w-5 h-5 text-amber-500" />
+                  <h4 className="text-md font-medium text-gray-800">Try these examples:</h4>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {currentRole.examples.map((example, index) => (
+                    <Card
+                      key={index}
+                      className="p-3 cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-blue-500 bg-white"
+                      onClick={() => handleExampleClick(example)}
+                    >
+                      <p className="text-sm text-gray-700 text-right">{example}</p>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+              
               <p className="text-sm text-gray-500">
-                Upload documents, ask questions, or describe what you'd like help with!
+                Upload documents, ask questions, or click on an example above to get started!
               </p>
             </div>
           )}
