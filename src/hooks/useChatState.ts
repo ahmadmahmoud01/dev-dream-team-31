@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { Message, AIRole, Language } from '@/types/chat';
 
@@ -22,30 +21,63 @@ export const useChatState = () => {
   };
 
   const setCurrentPanel = (panel: string) => {
-    setShowIntegrations(panel === 'integrations');
-    setShowRoleManagement(panel === 'roles');
-    setShowAgentManagement(panel === 'agents');
+    // Reset all panel states first
+    setShowIntegrations(false);
+    setShowRoleManagement(false);
+    setShowAgentManagement(false);
+    
+    // Set the active panel
+    switch (panel) {
+      case 'integrations':
+        setShowIntegrations(true);
+        break;
+      case 'roles':
+        setShowRoleManagement(true);
+        break;
+      case 'agents':
+        setShowAgentManagement(true);
+        break;
+      case 'chat':
+      default:
+        // All panels are already false, so chat is active
+        break;
+    }
   };
 
+  // Add currentPanel as a computed property for easier access
+  const currentPanel = getCurrentPanel();
+
   return {
+    // Messages and input
     messages,
     setMessages,
     inputMessage,
     setInputMessage,
+    
+    // Role and language
     selectedRole,
     setSelectedRole,
-    isLoading,
-    setIsLoading,
     language,
     setLanguage,
+    
+    // Loading state
+    isLoading,
+    setIsLoading,
+    
+    // Panel states (individual)
     showIntegrations,
     showRoleManagement,
     showQuickRepo,
     setShowQuickRepo,
     showAgentManagement,
     setShowAgentManagement,
-    messagesEndRef,
+    
+    // Panel management (unified)
+    currentPanel, // Add this as a direct property
     getCurrentPanel,
-    setCurrentPanel
+    setCurrentPanel,
+    
+    // Refs
+    messagesEndRef,
   };
 };

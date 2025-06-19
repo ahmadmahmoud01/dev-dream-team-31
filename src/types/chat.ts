@@ -4,16 +4,19 @@ export interface Message {
   content: string;
   sender: 'user' | 'ai';
   timestamp: Date;
-  aiRole?: 'product-manager' | 'tester' | 'frontend' | 'business-analyst' | 'backend' | 'mobile' | 'devops' | 'fullstack' | 'project-manager' | 'cost-accountant';
+  role: 'user' | 'assistant';
+  aiRole?: 'product-manager' | 'tester' | 'frontend' | 'business-analyst' | 'backend' | 'mobile' | 'devops' | 'fullstack' | 'project-manager' | 'generate-srs' | 'cost-accountant';
   assignedAgent?: string;
+  showAzureDevOpsPrompt?: boolean; // Add this new field
 }
 
 export interface ConversationMemory {
   id: string;
   title: string;
   messages: Message[];
-  lastUpdated: Date;
-  role: 'product-manager' | 'tester' | 'frontend' | 'business-analyst' | 'backend' | 'mobile' | 'devops' | 'fullstack' | 'project-manager' | 'cost-accountant';
+  lastUpdated: Date;  
+  role: 'product-manager' | 'tester' | 'frontend' | 'business-analyst' | 'backend' | 'mobile' | 'devops' | 'fullstack' | 'project-manager' | 'generate-srs' | 'cost-accountant';
+  isDynamic?: true;
 }
 
 export interface AIAgent {
@@ -38,5 +41,5 @@ export interface ProjectTask {
   dependencies: string[];
 }
 
-export type AIRole = 'product-manager' | 'tester' | 'frontend' | 'business-analyst' | 'backend' | 'mobile' | 'devops' | 'fullstack' | 'project-manager' | 'cost-accountant';
+export type AIRole = 'product-manager' | 'tester' | 'frontend' | 'business-analyst' | 'backend' | 'mobile' | 'devops' | 'fullstack' | 'project-manager' | 'generate-srs' | 'cost-accountant';
 export type Language = 'ar' | 'en';

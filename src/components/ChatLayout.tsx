@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Message, ConversationMemory, AIRole, Language } from '@/types/chat';
 import ChatSidebar from './ChatSidebar';
@@ -6,6 +5,7 @@ import ChatHeader from './ChatHeader';
 import ChatInput from './ChatInput';
 import ChatActions from './ChatActions';
 import ChatMainContent from './ChatMainContent';
+import { getRoleConfig } from '@/config/roleConfig';
 
 interface ChatLayoutProps {
   // State
@@ -20,10 +20,11 @@ interface ChatLayoutProps {
   messagesEndRef: React.RefObject<HTMLDivElement>;
   
   // Setters
-  setInputMessage: (message: string) => void;
-  setSelectedRole: (role: AIRole) => void;
-  setLanguage: (language: Language) => void;
+  onInputChange: (message: string) => void;
+  onRoleChange: (role: AIRole) => void;
+  onLanguageChange: (language: Language) => void;
   onPanelChange: (panel: string) => void;
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>; // Add this required prop
   
   // Handlers
   onExampleClick: (example: string) => void;
@@ -34,6 +35,7 @@ interface ChatLayoutProps {
   onSendMessage: () => void;
   onKeyPress: (e: React.KeyboardEvent) => void;
   onBackClick?: () => void;
+  onFileUpload?: (files: File[]) => void;
 }
 
 const ChatLayout: React.FC<ChatLayoutProps> = ({
@@ -46,10 +48,11 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   conversations,
   currentConversationId,
   messagesEndRef,
-  setInputMessage,
-  setSelectedRole,
-  setLanguage,
+  onInputChange,
+  onRoleChange,
+  onLanguageChange,
   onPanelChange,
+  setMessages, // Add this to destructuring
   onExampleClick,
   onCreateNewConversation,
   onSaveCurrentConversation,
@@ -57,15 +60,20 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
   onLoadConversation,
   onSendMessage,
   onKeyPress,
-  onBackClick
+  onBackClick,
+  onFileUpload
 }) => {
+  const roleConfig = getRoleConfig(language);
+  const currentRole = roleConfig[selectedRole];
+  const isDynamicRole = currentRole?.isDynamic || false;
+
   return (
     <div className={`flex h-screen bg-gray-50 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
       <ChatSidebar
         selectedRole={selectedRole}
-        setSelectedRole={setSelectedRole}
+        setSelectedRole={onRoleChange}
         language={language}
-        setLanguage={setLanguage}
+        setLanguage={onLanguageChange}
         conversations={conversations}
         currentConversationId={currentConversationId}
         onCreateNewConversation={onCreateNewConversation}
@@ -102,20 +110,23 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
               isLoading={isLoading}
               onExampleClick={onExampleClick}
               messagesEndRef={messagesEndRef}
+              setMessages={setMessages} // Pass the setMessages prop
             />
           </div>
         </div>
 
-        {/* Chat Input - Only show when in chat panel */}
-        {currentPanel === 'chat' && (
+        {/* Chat Input - Show when in chat panel and not a dynamic role */}
+        {currentPanel === 'chat' && !isDynamicRole && (
           <ChatInput
             inputMessage={inputMessage}
-            setInputMessage={setInputMessage}
+            setInputMessage={onInputChange}
             onSendMessage={onSendMessage}
             onKeyPress={onKeyPress}
             selectedRole={selectedRole}
             language={language}
             isLoading={isLoading}
+            isDynamicRole={isDynamicRole}
+            onFileUpload={onFileUpload}
           />
         )}
       </div>

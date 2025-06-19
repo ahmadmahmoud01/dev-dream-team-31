@@ -128,6 +128,7 @@ export class AIService {
         'devops': 'أنت مهندس DevOps خبير. ساعد المستخدم في النشر وإدارة البنية التحتية.',
         'fullstack': 'أنت مطور ويب متكامل خبير. ساعد المستخدم في التطوير الشامل.',
         'project-manager': 'أنت مدير مشروع خبير. ساعد المستخدم في إدارة المشاريع.',
+        'generate-srs': 'أنت مدير مشروع خبير. ساعد المستخدم في إدارة المشاريع.',
         'cost-accountant': 'أنت محاسب تكاليف خبير. ساعد المستخدم في تحليل التكاليف والميزانيات.'
       },
       'en': {
@@ -139,6 +140,7 @@ export class AIService {
         'devops': 'You are an expert DevOps engineer. Help the user with deployment and infrastructure management.',
         'fullstack': 'You are an expert full-stack web developer. Help the user with comprehensive development.',
         'project-manager': 'You are an expert project manager. Help the user with project management.',
+        'generate-srs': 'You are a SRS generator. Help the user with generating system requirements specifications.',
         'cost-accountant': 'You are an expert cost accountant. Help the user with cost analysis and budgeting.'
       }
     };

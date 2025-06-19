@@ -7,6 +7,7 @@ export interface RoleConfig {
   color: string;
   description: string;
   examples: string[];
+  isDynamic?: boolean;
 }
 
 export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> => {
@@ -20,6 +21,7 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
       mobile: 'مطور التطبيقات المحمولة',
       devops: 'مهندس DevOps',
       fullstack: 'مطور الويب المتكامل',
+      'generate-srs': 'إنشاء وثيقة متطلبات النظام',
       'project-manager': 'مدير مشروع',
       'cost-accountant': 'حساب تكاليف',
       'product-managerDesc': 'خبير في إدارة المنتجات وتوجيه فرق التطوير وإدارة الوكلاء الذكيين',
@@ -30,6 +32,7 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
       mobileDesc: 'خبير في تطوير تطبيقات الهواتف الذكية والأجهزة المحمولة',
       devopsDesc: 'متخصص في نشر التطبيقات وإدارة البنية التحتية والأتمتة',
       fullstackDesc: 'مطور شامل متخصص في الفرونت إند والباك إند وقواعد البيانات',
+      'generate-srsDesc': 'خبير فى استخراج متطلبات النظام وتوليد وثائق SRS',
       'project-managerDesc': 'خبير في إدارة المشاريع والتخطيط والمتابعة وتنسيق الفرق',
       'cost-accountantDesc': 'متخصص في تحليل التكاليف وإعداد الميزانيات والتقارير المالية',
     },
@@ -42,6 +45,7 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
       mobile: 'Mobile Developer',
       devops: 'DevOps Engineer',
       fullstack: 'Full Stack Developer',
+      'generate-srs': 'generate SRS',
       'project-manager': 'Project Manager',
       'cost-accountant': 'Cost Accountant',
       'product-managerDesc': 'Expert in product management, development team leadership, and AI agent management',
@@ -52,6 +56,7 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
       mobileDesc: 'Expert in mobile app development for iOS and Android platforms',
       devopsDesc: 'Specialist in deployment, infrastructure management, and automation',
       fullstackDesc: 'Comprehensive developer skilled in frontend, backend, and databases',
+      'generate-srsDesc': 'Expert in extracting system requirements and generating SRS documents',
       'project-managerDesc': 'Expert in project management, planning, monitoring, and team coordination',
       'cost-accountantDesc': 'Specialist in cost analysis, budget preparation, and financial reporting',
     }
@@ -410,6 +415,21 @@ export const getRoleConfig = (language: Language): Record<AIRole, RoleConfig> =>
         'What are methods for measuring team performance?',
         'How do I manage resources and budgets?'
       ]
+    },
+    'generate-srs': {
+      name: t['generate-srs'],
+      icon: Users,
+      color: 'bg-red-500',
+      description: t['generate-srsDesc'],
+      examples: language === 'ar' ? [
+        'كيف أنشئ وثيقة متطلبات النظام ؟',
+        'كيف أنشئ مهام من وثيقة متطلبات النظام المولدة ؟',
+        'كيف أنشئ حالات اختبار من وثيقة متطلبات النظام المولدة ؟',
+      ] : [
+        'How do I generate a software requirements specification (SRS)?',
+        'How do I create tasks from generated SRS ?',
+        'How do I create testcases from generated SRS ?',
+      ],
     },
     'cost-accountant': {
       name: t['cost-accountant'],

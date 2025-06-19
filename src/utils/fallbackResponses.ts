@@ -273,6 +273,40 @@ Would you like me to help with comprehensive architecture design or review integ
 
 Would you like me to help with creating a project plan or solving a specific management issue?`,
 
+'generate-srs': language === 'ar'
+      ? `كمولد وثائق متطلبات البرمجيات (SRS)، يمكنني مساعدتك في: ${input}
+
+**ماذا يمكنني أن أفعل:**
+- توليد وثيقة متطلبات برمجيات شاملة لمشروعك
+- تنظيم الأقسام: نظرة عامة، المتطلبات الوظيفية وغير الوظيفية، الهيكلية، واجهة المستخدم، البيانات، الأمان، الأداء، الافتراضات، المصطلحات
+- تقديم أمثلة على المتطلبات لكل قسم
+- شرح كيفية تحويل الأفكار والمتطلبات إلى مواصفات رسمية
+
+**خطوات توليد SRS:**
+1. جمع وتحليل متطلبات المشروع
+2. كتابة نظرة عامة واضحة
+3. تحديد المتطلبات الوظيفية وغير الوظيفية
+4. وصف الهيكلية ونقاط التكامل
+5. إعداد جداول البيانات والمخططات عند الحاجة
+
+هل ترغب في توليد وثيقة SRS كاملة أم قسم معين فقط؟`
+      : `As an SRS (Software Requirements Specification) Generator, I can help you with: ${input}
+
+**What I can do:**
+- Generate a comprehensive SRS document for your project
+- Structure sections: overview, functional/non-functional requirements, architecture, UI, data, security, performance, assumptions, glossary
+- Provide sample requirements for each section
+- Explain how to turn ideas and needs into formal specifications
+
+**SRS Generation Steps:**
+1. Gather and analyze project requirements
+2. Write a clear project overview
+3. Specify functional and non-functional requirements
+4. Describe architecture and integration points
+5. Prepare data tables and diagrams as needed
+
+Would you like to generate a full SRS document or just a specific section?`,
+
     'cost-accountant': language === 'ar' ?
       `كحساب تكاليف، سأساعدك في: ${input}
 

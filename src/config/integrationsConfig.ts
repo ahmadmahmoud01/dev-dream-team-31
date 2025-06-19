@@ -43,12 +43,13 @@ export const INTEGRATIONS_CONFIG: IntegrationConfig[] = [
     id: 'devops',
     name: 'Azure DevOps',
     icon: '⚙️',
-    description: 'تكامل مع Azure DevOps لإدارة التطوير والنشر - اختر مشاريعك المسجلة',
+    description: 'تكامل مع Azure DevOps لإدارة التطوير والنشر - إنشاء المهام وتعيين الموظفين',
     fields: {
-      apiKey: true,
-      serverUrl: true,
-      username: true,
-      projectSelection: true
+      personalAccessToken: true,
+      organizationUrl: true,
+      projectName: true,
+      teamMembers: true, // New field for dynamic team member management
+      testConnection: true
     },
     color: 'bg-indigo-500'
   },
