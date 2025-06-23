@@ -6,7 +6,18 @@ import IntegrationsPanel from './IntegrationsPanel';
 import RoleManagementPanel from './RoleManagementPanel';
 import AgentManagementPanel from './AgentManagementPanel';
 import AzureDevOpsPrompt from '../chat/AzureDevOpsPrompt';
+import InteractiveButtons from '../chat/InteractiveButtons'; // ✅ NEW: Import interactive buttons
 import { useIntegrations } from '@/hooks/useIntegrations';
+
+// ✅ ENHANCED: Extended Message type to support buttons
+interface EnhancedMessage extends Message {
+  buttons?: Array<{
+    id: string;
+    text: string;
+    action: string;
+    variant?: 'primary' | 'secondary' | 'success' | 'danger';
+  }>;
+}
 
 interface ChatMainContentProps {
   currentPanel: string;
@@ -17,6 +28,8 @@ interface ChatMainContentProps {
   onExampleClick: (example: string) => void;
   messagesEndRef: React.RefObject<HTMLDivElement>;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  onButtonClick?: (action: string) => void;
+  conversationState?: string;
 }
 
 const ChatMainContent: React.FC<ChatMainContentProps> = ({
@@ -27,7 +40,9 @@ const ChatMainContent: React.FC<ChatMainContentProps> = ({
   isLoading,
   onExampleClick,
   messagesEndRef,
-  setMessages
+  setMessages,
+  onButtonClick,
+  conversationState
 }) => {
   const { settings, isAzureDevOpsEnabled, hasValidAzureDevOpsConfig } = useIntegrations();
   const [azureDevOpsResponses, setAzureDevOpsResponses] = useState<Record<string, 'yes' | 'no'>>({});
@@ -93,37 +108,65 @@ const ChatMainContent: React.FC<ChatMainContentProps> = ({
     });
   };
 
-  // Enhanced MessageList component with Azure DevOps integration
-  const EnhancedMessageList: React.FC<{ messages: Message[]; language: Language; isLoading: boolean }> = ({
-    messages,
-    language,
-    isLoading
-  }) => {
+  // ✅ NEW: Enhanced Message Display Component with Button Support
+  const MessageDisplay: React.FC<{ 
+    message: EnhancedMessage; 
+    language: Language; 
+    onButtonClick?: (action: string) => void;
+  }> = ({ message, language, onButtonClick }) => {
+    return (
+      <div className="message-container">
+        {/* Render the original message */}
+        <MessageList
+          messages={[message]}
+          language={language}
+          isLoading={false}
+        />
+        
+        {/* ✅ NEW: Render interactive buttons if they exist */}
+        {message.buttons && message.buttons.length > 0 && onButtonClick && (
+          <div className="mt-3">
+            <InteractiveButtons
+              buttons={message.buttons}
+              onButtonClick={onButtonClick}
+              language={language}
+            />
+          </div>
+        )}
+        
+        {/* Show Azure DevOps prompt if this message has the flag and user hasn't responded yet */}
+        {message.showAzureDevOpsPrompt && 
+         selectedRole === 'product-manager' && 
+         !azureDevOpsResponses[message.id] && (
+          <div className="mt-4">
+            <AzureDevOpsPrompt
+              language={language}
+              onResponse={(response) => handleAzureDevOpsResponse(message.id, response)}
+              onTasksCreated={(result) => handleTasksCreated(message.id, result)}
+              onError={(error) => handleTaskCreationError(message.id, error)}
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // ✅ ENHANCED: MessageList component with interactive button support
+  const EnhancedMessageList: React.FC<{ 
+    messages: Message[]; 
+    language: Language; 
+    isLoading: boolean;
+    onButtonClick?: (action: string) => void;
+  }> = ({ messages, language, isLoading, onButtonClick }) => {
     return (
       <div className="space-y-4">
         {messages.map((message) => (
-          <div key={message.id}>
-            {/* Render the original message */}
-            <MessageList
-              messages={[message]}
-              language={language}
-              isLoading={false}
-            />
-            
-            {/* Show Azure DevOps prompt if this message has the flag and user hasn't responded yet */}
-            {message.showAzureDevOpsPrompt && 
-             selectedRole === 'product-manager' && 
-             !azureDevOpsResponses[message.id] && (
-              <div className="mt-4">
-                <AzureDevOpsPrompt
-                  language={language}
-                  onResponse={(response) => handleAzureDevOpsResponse(message.id, response)}
-                  onTasksCreated={(result) => handleTasksCreated(message.id, result)}
-                  onError={(error) => handleTaskCreationError(message.id, error)}
-                />
-              </div>
-            )}
-          </div>
+          <MessageDisplay
+            key={message.id}
+            message={message as EnhancedMessage}
+            language={language}
+            onButtonClick={onButtonClick}
+          />
         ))}
         
         {/* Show loading indicator */}
@@ -135,6 +178,45 @@ const ChatMainContent: React.FC<ChatMainContentProps> = ({
             </span>
           </div>
         )}
+      </div>
+    );
+  };
+
+  // ✅ NEW: Conversational State Indicator (optional visual feedback)
+  const ConversationStateIndicator: React.FC<{ 
+    state?: string; 
+    language: Language; 
+  }> = ({ state, language }) => {
+    if (!state || selectedRole !== 'product-manager') return null;
+
+    const getStateText = (state: string) => {
+      switch (state) {
+        case 'initial':
+          return language === 'ar' ? 'جاهز لبدء العملية' : 'Ready to start';
+        case 'awaiting_files':
+          return language === 'ar' ? 'في انتظار تحميل الملفات' : 'Awaiting file upload';
+        case 'prd_generated':
+          return language === 'ar' ? 'تم إنشاء مستند PRD' : 'PRD generated';
+        case 'azure_prompt':
+          return language === 'ar' ? 'في انتظار قرار Azure DevOps' : 'Awaiting Azure DevOps decision';
+        case 'tasks_created':
+          return language === 'ar' ? 'تم إنشاء المهام' : 'Tasks created';
+        default:
+          return '';
+      }
+    };
+
+    const stateText = getStateText(state);
+    if (!stateText) return null;
+
+    return (
+      <div className="mb-4 p-2 bg-blue-50 border-l-4 border-blue-400 rounded">
+        <div className="flex items-center">
+          <div className="w-2 h-2 bg-blue-400 rounded-full mr-2 animate-pulse"></div>
+          <span className="text-sm text-blue-700 font-medium">
+            {language === 'ar' ? 'حالة المحادثة:' : 'Conversation State:'} {stateText}
+          </span>
+        </div>
       </div>
     );
   };
@@ -155,6 +237,12 @@ const ChatMainContent: React.FC<ChatMainContentProps> = ({
   // Main chat content
   return (
     <>
+      {/* ✅ NEW: Show conversation state indicator for Product Manager */}
+      <ConversationStateIndicator 
+        state={conversationState} 
+        language={language} 
+      />
+      
       {messages.length === 0 ? (
         <WelcomeScreen
           selectedRole={selectedRole}
@@ -166,6 +254,7 @@ const ChatMainContent: React.FC<ChatMainContentProps> = ({
           messages={messages}
           language={language}
           isLoading={isLoading}
+          onButtonClick={onButtonClick} // ✅ NEW: Pass button click handler
         />
       )}
       <div ref={messagesEndRef} />

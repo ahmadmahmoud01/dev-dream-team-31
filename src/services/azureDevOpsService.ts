@@ -1,4 +1,5 @@
 import Groq from "groq-sdk";
+import axios from 'axios'; // ✅ ADD: Missing axios import
 
 // services/azureDevOpsService.ts
 interface AzureDevOpsCredentials {
@@ -11,7 +12,7 @@ interface WorkItemData {
   title: string;
   description?: string;
   assignedTo?: string;
-  workItemType?: 'Task' | 'Bug' | 'User Story';
+  workItemType?: string;
   tags?: string[];
 }
 
@@ -81,189 +82,105 @@ class AzureDevOpsService {
 
   async createWorkItem(
     credentials: AzureDevOpsCredentials,
-    workItemData: WorkItemData
+    workItem: {
+      title: string;
+      description: string;
+      assignedTo: string;
+      workItemType: string;
+      tags: string[];
+      estimatedHours?: number;
+      complexity?: string;
+      activity?: string;
+    }
   ): Promise<{ success: boolean; workItemId?: number; error?: string }> {
     try {
-      const { personalAccessToken, organizationUrl, projectName } = credentials;
-      const headers = this.getAuthHeaders(personalAccessToken);
-      
-      const workItemType = workItemData.workItemType || 'Task';
-      const url = this.getApiUrl(organizationUrl, projectName, `wit/workitems/$${workItemType}?api-version=7.1`);
+      const orgName = credentials.organizationUrl.replace('https://dev.azure.com/', '').replace('/', '');
+      const createUrl = `https://dev.azure.com/${orgName}/${credentials.projectName}/_apis/wit/workitems/$${workItem.workItemType}?api-version=7.1`;
 
-      // Build the patch document for work item creation[2]
-      const patchDocument = [
+      // ✅ ENHANCED: Include estimation fields in work item creation
+      const workItemFields = [
         {
           op: 'add',
           path: '/fields/System.Title',
-          value: workItemData.title
-        }
-      ];
-
-      if (workItemData.description) {
-        patchDocument.push({
+          value: workItem.title
+        },
+        {
           op: 'add',
           path: '/fields/System.Description',
-          value: workItemData.description
-        });
-      }
-
-      if (workItemData.assignedTo) {
-        patchDocument.push({
+          value: workItem.description
+        },
+        {
           op: 'add',
           path: '/fields/System.AssignedTo',
-          value: workItemData.assignedTo
+          value: workItem.assignedTo
+        },
+        // {
+        //   op: 'add',
+        //   path: '/fields/System.Tags',
+        //   value: workItem.tags.join('; ')
+        // }
+      ];
+
+      // ✅ NEW: Add estimation fields if provided
+      if (workItem.estimatedHours) {
+        workItemFields.push(
+          {
+            op: 'add',
+            path: '/fields/Microsoft.VSTS.Scheduling.OriginalEstimate',
+            value: `${workItem.estimatedHours}`
+          },
+          {
+            op: 'add',
+            path: '/fields/Microsoft.VSTS.Scheduling.RemainingWork',
+            value: `${workItem.estimatedHours}`
+          }
+        );
+      }
+
+      // ✅ NEW: Add activity type if provided
+      if (workItem.activity) {
+        workItemFields.push({
+          op: 'add',
+          path: '/fields/Microsoft.VSTS.Common.Activity',
+          value: workItem.activity
         });
       }
 
-      // if (workItemData.tags && workItemData.tags.length > 0) {
-      //   patchDocument.push({
+      // ✅ NEW: Add complexity as custom field or tag
+      // if (workItem.complexity) {
+      //   workItemFields.push({
       //     op: 'add',
       //     path: '/fields/System.Tags',
-      //     value: workItemData.tags.join('; ')
+      //     value: `${workItem.tags.join('; ')}; Complexity-${workItem.complexity}`
       //   });
       // }
 
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(patchDocument)
+      const response = await axios.post(createUrl, workItemFields, {
+        headers: {
+          'Authorization': `Basic ${Buffer.from(`:${credentials.personalAccessToken}`).toString('base64')}`,
+          'Content-Type': 'application/json-patch+json'
+        }
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        return {
-          success: false,
-          error: `Failed to create work item: HTTP ${response.status} - ${errorText}`
-        };
-      }
-
-      const createdWorkItem = await response.json();
-      
       return {
         success: true,
-        workItemId: createdWorkItem.id
+        workItemId: response.data.id
       };
-    } catch (error) {
+    } catch (error: any) { // ✅ FIX: Proper error typing
+      console.error('Error creating work item:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
+        error: error.response?.data?.message || error.message
       };
     }
   }
 
-  // async createTasksFromPRD(
-  //   credentials: AzureDevOpsCredentials,
-  //   prdFileName: string,
-  //   teamMembers: Array<{ email: string; role: string }>
-  // ): Promise<{ success: boolean; createdTasks?: Array<{ email: string; workItemId: number; role: string }>; error?: string }> {
-  //   try {
-  //     console.log('=== AUTOMATED AZURE DEVOPS TASK CREATION ===');
-  //     console.log('PRD File:', prdFileName);
-  //     console.log('Team members:', teamMembers.length);
-  //     console.log('Project:', credentials.projectName);
-
-  //     const createdTasks = [];
-      
-  //     // Enhanced role-based tasks with PRD context
-  //     const roleTasks = {
-  //       frontend: [
-  //         'Implement user interface components based on PRD specifications',
-  //         'Create responsive design layouts for all user interfaces',
-  //         'Develop client-side functionality and user interactions',
-  //         'Integrate frontend components with backend APIs',
-  //         'Implement user authentication and authorization flows'
-  //       ],
-  //       backend: [
-  //         'Design and implement database schema per PRD requirements',
-  //         'Create REST API endpoints for all system functions',
-  //         'Implement core business logic and data processing',
-  //         'Set up authentication and authorization systems',
-  //         'Develop data validation and security measures'
-  //       ],
-  //       fullstack: [
-  //         'Implement end-to-end features from PRD specifications',
-  //         'Create complete user workflows and processes',
-  //         'Integrate frontend and backend components seamlessly',
-  //         'Develop comprehensive system functionality',
-  //         'Ensure data flow consistency across all layers'
-  //       ],
-  //       tester: [
-  //         'Create comprehensive test plans based on PRD requirements',
-  //         'Develop automated test cases for all features',
-  //         'Perform functional and integration testing',
-  //         'Execute user acceptance testing scenarios',
-  //         'Document and track defects and issues'
-  //       ],
-  //       devops: [
-  //         'Set up CI/CD pipelines for automated deployment',
-  //         'Configure production and staging environments',
-  //         'Implement monitoring and logging systems',
-  //         'Manage infrastructure and scalability requirements',
-  //         'Ensure security and compliance standards'
-  //       ]
-  //     };
-
-  //     // Create tasks for each team member
-  //     for (const member of teamMembers) {
-  //       const roleSpecificTasks = roleTasks[member.role as keyof typeof roleTasks] || ['General development tasks'];
-  //       const randomTask = roleSpecificTasks[Math.floor(Math.random() * roleSpecificTasks.length)];
-        
-  //       const taskTitle = `[${member.role.toUpperCase()}] ${randomTask}`;
-  //       const taskDescription = `Task automatically generated from PRD: ${prdFileName}
-
-  // Role: ${member.role}
-  // Assigned to: ${member.email}
-
-  // Task Description: ${randomTask}
-
-  // This task is part of the automated project implementation workflow based on the Product Requirements Document. Please refer to the PRD for detailed specifications and requirements.
-
-  // Generated: ${new Date().toLocaleString()}
-  // Priority: Based on role and project timeline
-  // Estimated Effort: To be determined during sprint planning`;
-        
-  //       const result = await this.createWorkItem(credentials, {
-  //         title: taskTitle,
-  //         description: taskDescription,
-  //         assignedTo: member.email,
-  //         workItemType: 'Task',
-  //         //tags: [member.role, 'prd-generated', 'auto-assigned', 'automated-workflow']
-  //       });
-
-  //       if (result.success && result.workItemId) {
-  //         createdTasks.push({
-  //           email: member.email,
-  //           workItemId: result.workItemId,
-  //           role: member.role
-  //         });
-          
-  //         console.log(`✅ Created work item ${result.workItemId} for ${member.email} (${member.role})`);
-  //       } else {
-  //         console.warn(`❌ Failed to create task for ${member.email}:`, result.error);
-  //       }
-  //     }
-
-  //     console.log(`=== TASK CREATION COMPLETE: ${createdTasks.length}/${teamMembers.length} successful ===`);
-
-  //     return {
-  //       success: createdTasks.length > 0,
-  //       createdTasks: createdTasks
-  //     };
-  //   } catch (error) {
-  //     console.error('Error in automated createTasksFromPRD:', error);
-  //     return {
-  //       success: false,
-  //       error: error instanceof Error ? error.message : 'Unknown error occurred during automated task creation'
-  //     };
-  //   }
-  // }
-
-  // Enhanced createTasksFromPRD method with AI-powered extraction
+  // ✅ ENHANCED: AI-powered task creation with estimation
   async createTasksFromPRD(
     credentials: AzureDevOpsCredentials,
     prdFileName: string,
     teamMembers: Array<{ email: string; role: string }>
-  ): Promise<{ success: boolean; createdTasks?: Array<{ email: string; workItemId: number; role: string }>; error?: string }> {
+  ): Promise<{ success: boolean; createdTasks?: Array<{ email: string; workItemId: number; role: string; estimatedHours: number }>; error?: string }> {
     try {
       console.log('=== AI-POWERED TASK EXTRACTION FROM PRD ===');
       
@@ -276,7 +193,7 @@ class AzureDevOpsService {
 
       console.log(`Extracted ${extractedTasks.length} tasks from PRD`);
 
-      // Step 2: Create work items for each extracted task
+      // Step 2: Create work items for each extracted task with estimation
       const createdTasks = [];
       
       for (const task of extractedTasks) {
@@ -285,17 +202,21 @@ class AzureDevOpsService {
           description: task.description,
           assignedTo: task.assignedTo,
           workItemType: 'Task',
-          tags: [task.role, 'prd-extracted', 'ai-generated']
+          tags: [task.role, 'prd-extracted', 'ai-generated'],
+          estimatedHours: task.estimatedHours,
+          complexity: task.complexity,
+          activity: task.activity
         });
 
         if (result.success && result.workItemId) {
           createdTasks.push({
             email: task.assignedTo,
             workItemId: result.workItemId,
-            role: task.role
+            role: task.role,
+            estimatedHours: task.estimatedHours
           });
           
-          console.log(`✅ Created work item ${result.workItemId} for ${task.assignedTo} (${task.role}): ${task.title}`);
+          console.log(`✅ Created work item ${result.workItemId} for ${task.assignedTo} (${task.role}): ${task.title} - ${task.estimatedHours}h`);
         } else {
           console.warn(`❌ Failed to create task for ${task.assignedTo}:`, result.error);
         }
@@ -314,229 +235,475 @@ class AzureDevOpsService {
     }
   }
 
-  // New method for AI-powered task extraction
-async extractTasksFromPRDWithAI(
-  prdFileName: string,
-  teamMembers: Array<{ email: string; role: string }>
-): Promise<Array<{ title: string; description: string; assignedTo: string; role: string }>> {
-  try {
-    // Group team members by role
-    const roleGroups = teamMembers.reduce((groups, member) => {
-      if (!groups[member.role]) {
-        groups[member.role] = [];
+  // ✅ NEW: AI-powered task extraction with estimation
+  async extractTasksFromPRDWithAI(
+    prdFileName: string,
+    teamMembers: Array<{ email: string; role: string }>
+  ): Promise<Array<{ 
+    title: string; 
+    description: string; 
+    assignedTo: string; 
+    role: string; 
+    estimatedHours: number; 
+    complexity: string;
+    activity: string;
+  }>> {
+    try {
+      // Group team members by role
+      const roleGroups = teamMembers.reduce((groups, member) => {
+        if (!groups[member.role]) {
+          groups[member.role] = [];
+        }
+        groups[member.role].push(member);
+        return groups;
+      }, {} as Record<string, Array<{ email: string; role: string }>>);
+
+      const allTasks = [];
+
+      // Generate tasks for each role
+      for (const [role, members] of Object.entries(roleGroups)) {
+        const roleTasks = await this.generateTasksForRole(role, members, prdFileName);
+        allTasks.push(...roleTasks);
       }
-      groups[member.role].push(member);
-      return groups;
-    }, {} as Record<string, Array<{ email: string; role: string }>>);
 
-    const allTasks = [];
-
-    // Generate tasks for each role
-    for (const [role, members] of Object.entries(roleGroups)) {
-      const roleTasks = await this.generateTasksForRole(role, members, prdFileName);
-      allTasks.push(...roleTasks);
+      return allTasks;
+    } catch (error) {
+      console.error('Error in AI task extraction:', error);
+      return [];
     }
-
-    return allTasks;
-  } catch (error) {
-    console.error('Error in AI task extraction:', error);
-    return [];
   }
-}
 
-// Generate role-specific tasks using Groq AI
-async generateTasksForRole(
-  role: string,
-  members: Array<{ email: string; role: string }>,
-  prdFileName: string
-): Promise<Array<{ title: string; description: string; assignedTo: string; role: string }>> {
-  try {
-    const groq = new Groq({
-      apiKey: 'your-groq-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-key'
-    });
+  // ✅ ENHANCED: Generate role-specific tasks with estimation using Groq AI
+  async generateTasksForRole(
+    role: string,
+    members: Array<{ email: string; role: string }>,
+    prdFileName: string
+  ): Promise<Array<{ 
+    title: string; 
+    description: string; 
+    assignedTo: string; 
+    role: string; 
+    estimatedHours: number; 
+    complexity: string;
+    activity: string;
+  }>> {
+    try {
+      const groq = new Groq({
+        apiKey: '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'
+      });
 
-    const systemPrompt = `You are an expert project manager analyzing a PRD document. Generate specific, actionable tasks for ${role} developers based on the PRD content.
+      const systemPrompt = `You are an expert project manager analyzing a PRD document. Generate specific, actionable tasks for ${role} developers with accurate time estimation.
 
 Requirements:
 - Generate exactly 5 detailed tasks for ${role} role
-- Each task should be specific and actionable
-- Tasks should be realistic and implementable
+- Each task should include realistic time estimation in hours
+- Classify complexity as: simple, medium, complex
+- Tasks should be specific and actionable
 - Include technical details relevant to ${role} work
-- Return tasks in JSON format
+- Provide accurate hour estimates based on industry standards
 
 Return format:
 {
   "tasks": [
     {
       "title": "Specific task title",
-      "description": "Detailed description with technical requirements and acceptance criteria"
+      "description": "Detailed description with technical requirements and acceptance criteria",
+      "complexity": "simple|medium|complex",
+      "estimatedHours": 8
     }
   ]
 }`;
 
-    const userPrompt = `Based on the PRD file "${prdFileName}", generate 5 specific ${role} development tasks. 
+      const userPrompt = `Based on the PRD file "${prdFileName}", generate 5 specific ${role} development tasks with time estimation.
 
 For ${role} developers, focus on:
 ${this.getRoleSpecificGuidance(role)}
 
+Time estimation guidelines:
+- Simple tasks: 2-8 hours
+- Medium tasks: 8-16 hours  
+- Complex tasks: 16-40 hours
+
 Generate tasks that are:
 - Specific to ${role} development work
 - Technically detailed and actionable
+- Include realistic hour estimates
 - Based on typical PRD requirements
 - Include acceptance criteria
 - Realistic in scope for sprint planning
 
-Return only the JSON with 5 tasks.`;
+Return only the JSON with 5 tasks including estimatedHours and complexity.`;
 
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      temperature: 0.7,
-      max_tokens: 2000
-    });
+      const completion = await groq.chat.completions.create({
+        //model: "llama-3.1-8b-instant",
+        model: "meta-llama/llama-4-scout-17b-16e-instruct",
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.7,
+        max_tokens: 2000
+      });
 
-    const content = completion.choices[0]?.message?.content;
-    
-    try {
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const parsedTasks = JSON.parse(jsonMatch[0]);
-        
-        if (parsedTasks.tasks && Array.isArray(parsedTasks.tasks)) {
-          // Distribute tasks among team members of this role
-          return this.distributeTasks(parsedTasks.tasks, members, role);
+      const content = completion.choices[0]?.message?.content;
+      
+      try {
+        const jsonMatch = content?.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsedTasks = JSON.parse(jsonMatch[0]);
+          
+          if (parsedTasks.tasks && Array.isArray(parsedTasks.tasks)) {
+            return this.distributeTasksWithEstimation(parsedTasks.tasks, members, role);
+          }
         }
+      } catch (parseError) {
+        console.error('Failed to parse AI response for role:', role);
       }
-    } catch (parseError) {
-      console.error('Failed to parse AI response for role:', role);
+
+      // Fallback if AI parsing fails
+      return this.generateFallbackTasksWithEstimation(role, members);
+    } catch (error) {
+      console.error(`Error generating tasks for ${role}:`, error);
+      return this.generateFallbackTasksWithEstimation(role, members);
+    }
+  }
+
+  // ✅ NEW: Distribute tasks with estimation among team members
+  distributeTasksWithEstimation(
+    tasks: Array<{ title: string; description: string; complexity: string; estimatedHours: number }>,
+    members: Array<{ email: string; role: string }>,
+    role: string
+  ): Array<{ 
+    title: string; 
+    description: string; 
+    assignedTo: string; 
+    role: string; 
+    estimatedHours: number; 
+    complexity: string;
+    activity: string;
+  }> {
+    const distributedTasks = [];
+    
+    for (let i = 0; i < tasks.length; i++) {
+      const task = tasks[i];
+      const assignedMember = members[i % members.length];
+      
+      const validatedEstimation = this.validateEstimation(task.estimatedHours, task.complexity, role);
+      
+      distributedTasks.push({
+        title: task.title,
+        description: task.description,
+        assignedTo: assignedMember.email,
+        role: role,
+        estimatedHours: validatedEstimation,
+        complexity: task.complexity || 'medium',
+        activity: this.getActivityType(role)
+      });
+    }
+    
+    return distributedTasks;
+  }
+
+  // ✅ NEW: Validate and adjust estimation based on complexity and role
+  validateEstimation(estimatedHours: number, complexity: string, role: string): number {
+    const estimationMatrix = {
+      simple: { 
+        frontend: { min: 2, max: 8, default: 4 },
+        backend: { min: 3, max: 10, default: 6 },
+        fullstack: { min: 4, max: 12, default: 8 },
+        tester: { min: 1, max: 4, default: 2 },
+        devops: { min: 2, max: 6, default: 4 }
+      },
+      medium: {
+        frontend: { min: 6, max: 16, default: 10 },
+        backend: { min: 8, max: 20, default: 14 },
+        fullstack: { min: 10, max: 24, default: 16 },
+        tester: { min: 3, max: 8, default: 5 },
+        devops: { min: 4, max: 12, default: 8 }
+      },
+      complex: {
+        frontend: { min: 12, max: 40, default: 24 },
+        backend: { min: 16, max: 48, default: 32 },
+        fullstack: { min: 20, max: 56, default: 40 },
+        tester: { min: 6, max: 16, default: 10 },
+        devops: { min: 8, max: 24, default: 16 }
+      }
+    };
+
+    const roleMatrix = estimationMatrix[complexity as keyof typeof estimationMatrix]?.[role as keyof typeof estimationMatrix.simple];
+    if (!roleMatrix) {
+      return estimatedHours || 8;
     }
 
-    // Fallback if AI parsing fails
-    return this.generateFallbackTasks(role, members);
-  } catch (error) {
-    console.error(`Error generating tasks for ${role}:`, error);
-    return this.generateFallbackTasks(role, members);
+    if (estimatedHours < roleMatrix.min) {
+      return roleMatrix.min;
+    } else if (estimatedHours > roleMatrix.max) {
+      return roleMatrix.max;
+    }
+    
+    return estimatedHours || roleMatrix.default;
   }
-}
 
-// Get role-specific guidance for AI task generation
-private getRoleSpecificGuidance(role: string): string {
-  const guidance = {
-    frontend: `
+  // ✅ NEW: Get activity type based on role
+  getActivityType(role: string): string {
+    const activityMap = {
+      'frontend': 'Development',
+      'backend': 'Development',
+      'fullstack': 'Development',
+      'devops': 'Deployment',
+      'tester': 'Testing',
+      'designer': 'Design',
+      'analyst': 'Requirements'
+    };
+
+    return activityMap[role as keyof typeof activityMap] || 'Development';
+  }
+
+  // ✅ ENHANCED: Generate fallback tasks with estimation
+  generateFallbackTasksWithEstimation(
+    role: string,
+    members: Array<{ email: string; role: string }>
+  ): Array<{ 
+    title: string; 
+    description: string; 
+    assignedTo: string; 
+    role: string; 
+    estimatedHours: number; 
+    complexity: string;
+    activity: string;
+  }> {
+    const fallbackTasks = this.getFallbackTasksByRole(role);
+    
+    return fallbackTasks.map((task, index) => ({
+      title: task.title,
+      description: task.description,
+      assignedTo: members[index % members.length].email,
+      role: role,
+      estimatedHours: task.estimatedHours,
+      complexity: task.complexity,
+      activity: this.getActivityType(role)
+    }));
+  }
+
+  // ✅ NEW: Fallback tasks with estimation by role
+  getFallbackTasksByRole(role: string): Array<{ 
+    title: string; 
+    description: string; 
+    estimatedHours: number; 
+    complexity: string; 
+  }> {
+    const taskTemplates = {
+      frontend: [
+        {
+          title: "Implement User Authentication UI",
+          description: "Create login and registration forms with validation and responsive design",
+          estimatedHours: 12,
+          complexity: "medium"
+        },
+        {
+          title: "Develop Dashboard Components",
+          description: "Build main dashboard with charts, widgets, and user navigation",
+          estimatedHours: 16,
+          complexity: "medium"
+        },
+        {
+          title: "Create Responsive Layout",
+          description: "Implement mobile-first responsive design across all pages",
+          estimatedHours: 8,
+          complexity: "simple"
+        },
+        {
+          title: "Integrate API Endpoints",
+          description: "Connect frontend components with backend APIs and handle error states",
+          estimatedHours: 10,
+          complexity: "medium"
+        },
+        {
+          title: "Implement State Management",
+          description: "Set up Redux/Context API for global state management",
+          estimatedHours: 14,
+          complexity: "complex"
+        }
+      ],
+      backend: [
+        {
+          title: "Design Database Schema",
+          description: "Create database tables, relationships, and indexes for the application",
+          estimatedHours: 8,
+          complexity: "medium"
+        },
+        {
+          title: "Implement Authentication API",
+          description: "Build JWT-based authentication with login, register, and password reset",
+          estimatedHours: 16,
+          complexity: "medium"
+        },
+        {
+          title: "Create CRUD Operations",
+          description: "Develop RESTful APIs for all main entities with proper validation",
+          estimatedHours: 20,
+          complexity: "complex"
+        },
+        {
+          title: "Set Up Security Middleware",
+          description: "Implement rate limiting, CORS, helmet, and input sanitization",
+          estimatedHours: 6,
+          complexity: "simple"
+        },
+        {
+          title: "Configure Deployment Pipeline",
+          description: "Set up CI/CD pipeline with testing, building, and deployment stages",
+          estimatedHours: 12,
+          complexity: "medium"
+        }
+      ],
+      tester: [
+        {
+          title: "Create Test Plan",
+          description: "Develop comprehensive test plan covering functional and non-functional requirements",
+          estimatedHours: 6,
+          complexity: "simple"
+        },
+        {
+          title: "Write Automated Tests",
+          description: "Create unit and integration tests for critical application features",
+          estimatedHours: 16,
+          complexity: "complex"
+        },
+        {
+          title: "Perform Manual Testing",
+          description: "Execute manual test cases for UI/UX and edge case scenarios",
+          estimatedHours: 12,
+          complexity: "medium"
+        },
+        {
+          title: "Set Up Test Environment",
+          description: "Configure testing environment with test data and monitoring tools",
+          estimatedHours: 4,
+          complexity: "simple"
+        },
+        {
+          title: "Create Test Reports",
+          description: "Generate detailed test reports with metrics and recommendations",
+          estimatedHours: 3,
+          complexity: "simple"
+        }
+      ]
+    };
+
+    return taskTemplates[role as keyof typeof taskTemplates] || taskTemplates.backend;
+  }
+
+  // ✅ FIX: Get role-specific guidance for AI task generation
+  private getRoleSpecificGuidance(role: string): string {
+    const guidance = {
+      frontend: `
 - User interface components and layouts
 - Responsive design implementation
 - User experience optimization
 - Client-side functionality
 - API integration from frontend perspective`,
-    backend: `
+      backend: `
 - Database schema design and implementation
 - API endpoint development
 - Business logic implementation
 - Data validation and security
 - Server-side architecture`,
-    fullstack: `
+      fullstack: `
 - End-to-end feature implementation
 - Frontend and backend integration
 - Complete user workflows
 - Cross-layer optimization
 - Full system functionality`,
-    tester: `
+      tester: `
 - Test plan creation and execution
 - Automated testing implementation
 - Quality assurance processes
 - Bug identification and reporting
 - User acceptance testing`,
-    devops: `
+      devops: `
 - CI/CD pipeline setup
 - Infrastructure configuration
 - Deployment automation
 - Monitoring and logging
 - Security and compliance`
-  };
+    };
 
-  return guidance[role as keyof typeof guidance] || 'General development tasks';
-}
+    return guidance[role as keyof typeof guidance] || 'General development tasks';
+  }
 
-// Distribute tasks among team members
-private distributeTasks(
-  tasks: Array<{ title: string; description: string }>,
-  members: Array<{ email: string; role: string }>,
-  role: string
-): Array<{ title: string; description: string; assignedTo: string; role: string }> {
-  const distributedTasks = [];
-  
-  tasks.forEach((task, index) => {
-    const assignedMember = members[index % members.length];
-    distributedTasks.push({
-      title: `[${role.toUpperCase()}] ${task.title}`,
-      description: `${task.description}\n\nRole: ${role}\nAssigned to: ${assignedMember.email}\nGenerated from PRD analysis`,
-      assignedTo: assignedMember.email,
-      role: role
-    });
-  });
+  // ✅ ENHANCED: Test case generation from PRD
+  async generateTestCasesFromPRD(
+    credentials: AzureDevOpsCredentials,
+    prdFileName: string,
+    prdContent: string,
+    testers: Array<{ email: string; role: string }>
+  ): Promise<{ success: boolean; createdTestCases?: Array<{ email: string; workItemId: number; role: string }>; error?: string }> {
+    try {
+      console.log('=== AI-POWERED TEST CASE GENERATION FROM PRD ===');
+      
+      // Step 1: Generate test cases from PRD using backend AI
+      const testCasesResponse = await fetch('http://localhost:8000/api/generate-test-cases-from-prd', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prdContent: prdContent,
+          testers: testers,
+          prdFileName: prdFileName
+        })
+      });
 
-  return distributedTasks;
-}
+      if (!testCasesResponse.ok) {
+        throw new Error(`Backend API error: ${testCasesResponse.status}`);
+      }
 
-// Fallback task generation if AI fails
-private generateFallbackTasks(
-  role: string,
-  members: Array<{ email: string; role: string }>
-): Array<{ title: string; description: string; assignedTo: string; role: string }> {
-  const fallbackTasks = {
-    frontend: [
-      'Implement main dashboard UI components',
-      'Create responsive navigation system',
-      'Develop user authentication interface',
-      'Build data visualization components',
-      'Implement form validation and user feedback'
-    ],
-    backend: [
-      'Design and implement database schema',
-      'Create user authentication API endpoints',
-      'Develop data processing business logic',
-      'Implement API security and validation',
-      'Create data backup and recovery system'
-    ],
-    fullstack: [
-      'Implement complete user registration flow',
-      'Develop end-to-end search functionality',
-      'Create integrated reporting system',
-      'Build real-time notification system',
-      'Implement complete user profile management'
-    ],
-    tester: [
-      'Create comprehensive test plan',
-      'Develop automated UI test suite',
-      'Implement API testing framework',
-      'Execute performance testing scenarios',
-      'Create user acceptance test cases'
-    ],
-    devops: [
-      'Set up CI/CD pipeline infrastructure',
-      'Configure production deployment environment',
-      'Implement monitoring and alerting system',
-      'Create automated backup procedures',
-      'Set up security scanning and compliance'
-    ]
-  };
+      const testCasesResult = await testCasesResponse.json();
+      
+      if (!testCasesResult.success || !testCasesResult.testCases) {
+        throw new Error(testCasesResult.error || 'Failed to generate test cases from backend');
+      }
 
-  const tasks = fallbackTasks[role as keyof typeof fallbackTasks] || ['General development task'];
-  
-  return tasks.map((task, index) => ({
-    title: `[${role.toUpperCase()}] ${task}`,
-    description: `Fallback task: ${task}\n\nRole: ${role}\nGenerated as backup when AI extraction failed`,
-    assignedTo: members[index % members.length].email,
-    role: role
-  }));
-}
+      console.log(`Generated ${testCasesResult.totalTestCases} test cases from PRD`);
 
+      // Step 2: Create work items for each test case
+      const createdTestCases = [];
+      
+      for (const testCase of testCasesResult.testCases) {
+        const result = await this.createWorkItem(credentials, {
+          title: testCase.title,
+          description: testCase.description,
+          assignedTo: testCase.assignedTo,
+          workItemType: 'Test Case',
+          tags: ['test-case', 'prd-generated', 'automated-testing']
+        });
 
+        if (result.success && result.workItemId) {
+          createdTestCases.push({
+            email: testCase.assignedTo,
+            workItemId: result.workItemId,
+            role: testCase.role
+          });
+          
+          console.log(`✅ Created test case ${result.workItemId} for ${testCase.assignedTo}: ${testCase.title}`);
+        } else {
+          console.warn(`❌ Failed to create test case for ${testCase.assignedTo}:`, result.error);
+        }
+      }
 
-
+      return {
+        success: createdTestCases.length > 0,
+        createdTestCases: createdTestCases
+      };
+    } catch (error) {
+      console.error('Error in test case generation:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred during test case generation'
+      };
+    }
+  }
 }
 
 export const azureDevOpsService = new AzureDevOpsService();

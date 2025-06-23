@@ -8,6 +8,11 @@ export interface Message {
   aiRole?: 'product-manager' | 'tester' | 'frontend' | 'business-analyst' | 'backend' | 'mobile' | 'devops' | 'fullstack' | 'project-manager' | 'generate-srs' | 'cost-accountant';
   assignedAgent?: string;
   showAzureDevOpsPrompt?: boolean; // Add this new field
+  buttons?: Array<{
+    id: string;
+    text: string;
+    action: string;
+  }>;
 }
 
 export interface ConversationMemory {

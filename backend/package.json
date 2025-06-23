@@ -11,8 +11,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@octokit/rest": "^22.0.0",
+    "axios": "^1.10.0",
     "cors": "^2.8.5",
     "docxtemplater": "^3.63.4",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "groq-sdk": "^0.25.0",
     "multer": "^2.0.1",
